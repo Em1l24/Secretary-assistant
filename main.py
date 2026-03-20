@@ -215,7 +215,7 @@ class GosStudentDialog(Toplevel):
         self.gos_type = gos_type  # Строка: "тест" или "экзамен"
         self.student_data = student_data
         self.is_edit = student_data is not None
-        title = "📝 Тест" if gos_type == "тест" else "📚 Экзамен"
+        title = "📝 ФИЭБ" if gos_type == "ФИЭБ" else "📚 Экзамен"
         edit_title = "✏️ Редактировать" if self.is_edit else "➕ Добавить"
         self.title(f"{edit_title} студента ({title})")
         self.geometry("900x700")
@@ -253,7 +253,7 @@ class GosStudentDialog(Toplevel):
             
             # 🔧 ИЗМЕНЕНИЕ: Поле характеристика ответов увеличивается ТОЛЬКО для ТЕСТА
             if key == 'property':
-                if self.gos_type == "тест":
+                if self.gos_type == "ФИЭБ":
                     # Для тестирования - увеличенное поле (ширина 900, высота 200)
                     entry = CTkTextboxWithMenu(row_frame, width=900, height=200)
                 else:
@@ -460,9 +460,9 @@ class GECAssistantApp(ctk.CTk):
         for widget in self.section_content.winfo_children(): widget.destroy()
         type_frame = ctk.CTkFrame(self.section_content, fg_color="transparent")
         type_frame.pack(fill="x", pady=(0, 16))
-        self.gos_type_var = ctk.StringVar(value="тест")
+        self.gos_type_var = ctk.StringVar(value="ФИЭБ")
         ctk.CTkLabel(type_frame, text="Тип экзамена:", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(side="left", padx=(0, 16))
-        for text, value in [("📝 Тестирование", "тест"), ("📚 Обычный экзамен", "экзамен")]:
+        for text, value in [("📝 ФИЭБ", "ФИЭБ"), ("📚 Экзамен", "Экзамен")]:
             ctk.CTkRadioButton(type_frame, text=text, variable=self.gos_type_var, value=value, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=17)).pack(side="left", padx=8)
         control_panel = ctk.CTkFrame(self.section_content, fg_color="transparent")
         control_panel.pack(fill="x", pady=(16, 0))
@@ -522,10 +522,10 @@ class GECAssistantApp(ctk.CTk):
         headers = ["№", "ФИО", "Группа", "Тип", "Оценка", ""]
         for col, header in enumerate(headers):
             ctk.CTkLabel(self.gos_table_frame, text=header, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, weight="bold", size=16), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=col, padx=12, pady=12, sticky="w")
-        test_students = self.db.get_all_students('тест')
+        test_students = self.db.get_all_students('ФИЭБ')
         exam_students = self.db.get_all_students('экзамен')
         all_students = []
-        for s in test_students: s['_type'] = 'тест'; all_students.append(s)
+        for s in test_students: s['_type'] = 'ФИЭБ'; all_students.append(s)
         for s in exam_students: s['_type'] = 'экзамен'; all_students.append(s)
         self.gos_count_label.configure(text=f"Студентов: {len(all_students)}")
         for i, student in enumerate(all_students, 1):
@@ -560,7 +560,7 @@ class GECAssistantApp(ctk.CTk):
         gos_type = self.gos_type_var.get()
         dialog = GosStudentDialog(self, gos_type, self._save_gos_student)
     def _edit_gos_student(self, student):
-        gos_type = student.get('_type', 'тест')
+        gos_type = student.get('_type', 'ФИЭБ')
         dialog = GosStudentDialog(self, gos_type, self._save_gos_student, student)
     def _save_gos_student(self, data):
         row = data.pop('_row', None); sheet_name = data.pop('_type')
@@ -574,7 +574,7 @@ class GECAssistantApp(ctk.CTk):
         fio = student.get('fio')
         row = student.get('_row')
         if messagebox.askyesno("Подтверждение", f"Удалить студента {fio}?"):
-            if row: sheet_name = student.get('_type', 'тест')
+            if row: sheet_name = student.get('_type', 'ФИЭБ')
             if self.db.delete_student(sheet_name, row): self._refresh_gos_table(); messagebox.showinfo("Успешно", "✅ Студент удалён!")
             else: messagebox.showerror("Ошибка", "❌ Не удалось удалить студента")
     def _clear_vkr(self):
@@ -590,7 +590,7 @@ class GECAssistantApp(ctk.CTk):
         if not gen_vkr and not gen_gos: messagebox.showwarning("Внимание", "⚠️ Выберите хотя бы один тип документов!"); return
         commission = self.db.get_commission()
         if not commission.get('chairman'): messagebox.showerror("Ошибка", "❌ Сначала заполните данные комиссии!"); return
-        vkr_count = len(self.db.get_all_students('ВКР')); test_count = len(self.db.get_all_students('тест')); exam_count = len(self.db.get_all_students('экзамен'))
+        vkr_count = len(self.db.get_all_students('ВКР')); test_count = len(self.db.get_all_students('ФИЭБ')); exam_count = len(self.db.get_all_students('экзамен'))
         if gen_vkr and vkr_count == 0: messagebox.showwarning("Внимание", "⚠️ Нет студентов ВКР для генерации!"); return
         if gen_gos and test_count == 0 and exam_count == 0: messagebox.showwarning("Внимание", "⚠️ Нет студентов госэкзамена для генерации!"); return
         try:
