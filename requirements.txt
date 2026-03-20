@@ -1,0 +1,4 @@
+openpyxl==3.1.2
+docxtpl==0.16.7
+customtkinter==5.2.0
+pillow==10.1.0
