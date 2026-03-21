@@ -1,3 +1,8 @@
+# main.py
+"""
+Цифровой помощник секретаря ГЭК
+Версия: 7.1 (Показ «ФИЭБ» вместо «Тест» + Исправление «Экзамен»)
+"""
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, Menu
 import os
@@ -212,12 +217,14 @@ class GosStudentDialog(Toplevel):
     def __init__(self, parent, gos_type, callback, student_data=None):
         super().__init__(parent)
         self.callback = callback
-        self.gos_type = gos_type  # Строка: "тест" или "экзамен"
+        self.gos_type = gos_type
         self.student_data = student_data
         self.is_edit = student_data is not None
-        title = "📝 ФИЭБ" if gos_type == "ФИЭБ" else "📚 Экзамен"
+        
+        # 🔧 ИЗМЕНЕНИЕ 1: Заголовок окна меняется на ФИЭБ если тип "тест"
+        display_type = "📝 ФИЭБ" if gos_type == "тест" else "📚 Экзамен"
         edit_title = "✏️ Редактировать" if self.is_edit else "➕ Добавить"
-        self.title(f"{edit_title} студента ({title})")
+        self.title(f"{edit_title} студента ({display_type})")
         self.geometry("900x700")
         self.minsize(800, 600)
         self.resizable(True, True)
@@ -235,7 +242,11 @@ class GosStudentDialog(Toplevel):
         main_frame.pack(fill="both", expand=True, padx=24, pady=24)
         header = ctk.CTkFrame(main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
-        ctk.CTkLabel(header, text=f"Данные студента для госэкзамена ({self.gos_type})", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
+        
+        # 🔧 ИЗМЕНЕНИЕ 2: Текстовая метка внутри окна меняется
+        inner_type_text = "ФИЭБ" if self.gos_type == "тест" else "Экзамен"
+        ctk.CTkLabel(header, text=f"Данные студента для госэкзамена ({inner_type_text})", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
+        
         ctk.CTkLabel(header, text="Заполните сначала ФИО. Остальные поля можно заполнить позже.", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY).pack(anchor="w", pady=(4, 0))
         
         self.fields = {}
@@ -251,13 +262,11 @@ class GosStudentDialog(Toplevel):
             row_frame.pack(fill="x", pady=8)
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
             
-            # 🔧 ИЗМЕНЕНИЕ: Поле характеристика ответов увеличивается ТОЛЬКО для ТЕСТА
+            # Если поле характеристика ответов - используем расширенную версию для теста
             if key == 'property':
-                if self.gos_type == "ФИЭБ":
-                    # Для тестирования - увеличенное поле (ширина 900, высота 200)
-                    entry = CTkTextboxWithMenu(row_frame, width=900, height=200)
+                if self.gos_type == "тест":
+                    entry = CTkTextboxWithMenu(row_frame, width=480, height=150)
                 else:
-                    # Для экзамена - стандартное поле (как было раньше)
                     entry = CTkTextboxWithMenu(row_frame, width=480, height=70)
             else:
                 entry = CTkEntryWithMenu(row_frame, width=480)
@@ -382,7 +391,7 @@ class GECAssistantApp(ctk.CTk):
         
         chairman_card = ModernCard(self.section_content, title="👤 Председатель ГЭК")
         chairman_card.pack(fill="x", pady=10)
-        for label_text, key in [("ФИО *", "chairman"), ("Должность *", "chairman_position")]:
+        for label_text, key in [("ФИО председателя *", "chairman"), ("Должность *", "chairman_position")]:
             row = ctk.CTkFrame(chairman_card, fg_color="transparent"); row.pack(fill="x", pady=8, padx=16)
             # Шрифт Председателя увеличен до 16
             ctk.CTkLabel(row, text=label_text, width=280, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=16)).pack(side="left")
@@ -460,10 +469,13 @@ class GECAssistantApp(ctk.CTk):
         for widget in self.section_content.winfo_children(): widget.destroy()
         type_frame = ctk.CTkFrame(self.section_content, fg_color="transparent")
         type_frame.pack(fill="x", pady=(0, 16))
-        self.gos_type_var = ctk.StringVar(value="ФИЭБ")
+        self.gos_type_var = ctk.StringVar(value="тест")
         ctk.CTkLabel(type_frame, text="Тип экзамена:", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(side="left", padx=(0, 16))
-        for text, value in [("📝 ФИЭБ", "ФИЭБ"), ("📚 Экзамен", "Экзамен")]:
+        
+        # 🔧 ИЗМЕНЕНИЕ 3: Текст радио-кнопки изменён на ФИЭБ
+        for text, value in [("📝 ФИЭБ", "тест"), ("📚 Экзамен", "экзамен")]:
             ctk.CTkRadioButton(type_frame, text=text, variable=self.gos_type_var, value=value, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=17)).pack(side="left", padx=8)
+        
         control_panel = ctk.CTkFrame(self.section_content, fg_color="transparent")
         control_panel.pack(fill="x", pady=(16, 0))
         ModernButton(control_panel, text="➕ Добавить студента", command=self._add_gos_student, color=DesignConfig.PRIMARY).pack(side="left", padx=(0, 10))
@@ -522,18 +534,30 @@ class GECAssistantApp(ctk.CTk):
         headers = ["№", "ФИО", "Группа", "Тип", "Оценка", ""]
         for col, header in enumerate(headers):
             ctk.CTkLabel(self.gos_table_frame, text=header, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, weight="bold", size=16), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=col, padx=12, pady=12, sticky="w")
-        test_students = self.db.get_all_students('ФИЭБ')
+        
+        test_students = self.db.get_all_students('тест')
         exam_students = self.db.get_all_students('экзамен')
         all_students = []
-        for s in test_students: s['_type'] = 'ФИЭБ'; all_students.append(s)
+        for s in test_students: s['_type'] = 'тест'; all_students.append(s)
         for s in exam_students: s['_type'] = 'экзамен'; all_students.append(s)
+        
         self.gos_count_label.configure(text=f"Студентов: {len(all_students)}")
         for i, student in enumerate(all_students, 1):
             row = i
             ctk.CTkLabel(self.gos_table_frame, text=str(row), text_color=DesignConfig.TEXT_SECONDARY, font=ctk.CTkFont(size=16)).grid(row=row, column=0, padx=12, pady=8)
             ctk.CTkLabel(self.gos_table_frame, text=student.get('fio', '')[:35], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=1, padx=12, pady=8)
             ctk.CTkLabel(self.gos_table_frame, text=student.get('group', ''), text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=2, padx=12, pady=8)
-            ctk.CTkLabel(self.gos_table_frame, text=student.get('_type', ''), text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
+            
+            # 🔧 ИЗМЕНЕНИЕ 4: Теперь оба типа отображаются корректно (с большой буквы или ФИЭБ)
+            type_raw = student.get('_type', '')
+            if type_raw == 'тест':
+                type_display = "ФИЭБ"
+            elif type_raw == 'экзамен':
+                type_display = "Экзамен"  # ✅ С большой буквы!
+            else:
+                type_display = type_raw.capitalize()
+            
+            ctk.CTkLabel(self.gos_table_frame, text=type_display, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
             ctk.CTkLabel(self.gos_table_frame, text=student.get('mark', ''), text_color=DesignConfig.SUCCESS, font=ctk.CTkFont(size=16)).grid(row=row, column=4, padx=12, pady=8)
             delete_btn = ctk.CTkButton(self.gos_table_frame, text="🗑️", width=36, height=36, fg_color=DesignConfig.DANGER, hover_color="#b91c1c", corner_radius=8, command=lambda s=student: self._delete_gos_student(s))
             delete_btn.grid(row=row, column=5, padx=12, pady=8)
@@ -560,7 +584,7 @@ class GECAssistantApp(ctk.CTk):
         gos_type = self.gos_type_var.get()
         dialog = GosStudentDialog(self, gos_type, self._save_gos_student)
     def _edit_gos_student(self, student):
-        gos_type = student.get('_type', 'ФИЭБ')
+        gos_type = student.get('_type', 'тест')
         dialog = GosStudentDialog(self, gos_type, self._save_gos_student, student)
     def _save_gos_student(self, data):
         row = data.pop('_row', None); sheet_name = data.pop('_type')
@@ -574,7 +598,7 @@ class GECAssistantApp(ctk.CTk):
         fio = student.get('fio')
         row = student.get('_row')
         if messagebox.askyesno("Подтверждение", f"Удалить студента {fio}?"):
-            if row: sheet_name = student.get('_type', 'ФИЭБ')
+            if row: sheet_name = student.get('_type', 'тест')
             if self.db.delete_student(sheet_name, row): self._refresh_gos_table(); messagebox.showinfo("Успешно", "✅ Студент удалён!")
             else: messagebox.showerror("Ошибка", "❌ Не удалось удалить студента")
     def _clear_vkr(self):
@@ -590,7 +614,7 @@ class GECAssistantApp(ctk.CTk):
         if not gen_vkr and not gen_gos: messagebox.showwarning("Внимание", "⚠️ Выберите хотя бы один тип документов!"); return
         commission = self.db.get_commission()
         if not commission.get('chairman'): messagebox.showerror("Ошибка", "❌ Сначала заполните данные комиссии!"); return
-        vkr_count = len(self.db.get_all_students('ВКР')); test_count = len(self.db.get_all_students('ФИЭБ')); exam_count = len(self.db.get_all_students('экзамен'))
+        vkr_count = len(self.db.get_all_students('ВКР')); test_count = len(self.db.get_all_students('тест')); exam_count = len(self.db.get_all_students('экзамен'))
         if gen_vkr and vkr_count == 0: messagebox.showwarning("Внимание", "⚠️ Нет студентов ВКР для генерации!"); return
         if gen_gos and test_count == 0 and exam_count == 0: messagebox.showwarning("Внимание", "⚠️ Нет студентов госэкзамена для генерации!"); return
         try:
