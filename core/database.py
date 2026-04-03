@@ -56,15 +56,12 @@ class Database:
                     if max_row >= 4:
                         for row in range(max_row, 3, -1):
                             sheet.delete_rows(row)
-            
-            # Очищаем лист "комиссия"
             if 'комиссия' in wb.sheetnames:
                 sheet = wb['комиссия']
                 max_row = sheet.max_row
                 if max_row > 3:
                     for row in range(max_row, 3, -1):
                         sheet.delete_rows(row)
-            
             wb.save(self.db_path)
             print("✅ Все данные очищены")
             return True
@@ -85,10 +82,8 @@ class Database:
             for sheet_name in ['тест', 'экзамен', 'ВКР', 'комиссия']:
                 if sheet_name not in wb.sheetnames:
                     wb.create_sheet(sheet_name)
-            
             if 'Sheet' in wb.sheetnames:
                 del wb['Sheet']
-            
             self._create_headers(wb)
             wb.save(self.db_path)
             print("✅ Excel файл создан")
@@ -98,7 +93,6 @@ class Database:
         test_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', 'Оценка', 'Характеристика ответов обучающегося']
         exam_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', '№ вытянутого билета', 'Дата утверждения билетов', 'Вопросы билета', 'Дополнительные вопросы', 'Характеристика ответов обучающегося', 'Оценка']
         commission_headers = ['ГЭК ТИУ', 'ГЭК ТИУ']
-        
         self._write_headers(wb, 'ВКР', vkr_headers, start_row=4)
         self._write_headers(wb, 'тест', test_headers, start_row=4)
         self._write_headers(wb, 'экзамен', exam_headers, start_row=4)
@@ -118,123 +112,86 @@ class Database:
         wb.save(self.db_path)
     
     def save_commission(self, commission_data: Dict[str, Any]):
-        """Сохраняет данные комиссии"""
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
         for row in range(3, 21):
             for col in [1, 2]:
                 sheet.cell(row=row, column=col).value = None
-        
         if commission_data.get('chairman'): sheet['B3'].value = commission_data['chairman']
         if commission_data.get('chairman_position'): sheet['B4'].value = commission_data['chairman_position']
         if commission_data.get('secretary'): sheet['B16'].value = commission_data['secretary']
         if commission_data.get('secretary_position'): sheet['B17'].value = commission_data['secretary_position']
-        
         member_mapping = {1: (6, 7), 2: (9, 10), 3: (12, 13), 4: (19, 20)}
-        
         for i in range(1, 5):
             name_key = f'member_{i}'
             pos_key = f'member_{i}_position'
             name_row, pos_row = member_mapping[i]
             name_val = commission_data.get(name_key)
             pos_val = commission_data.get(pos_key)
-            
             if name_val is not None: sheet[f'B{name_row}'].value = str(name_val).strip()
             if pos_val is not None: sheet[f'B{pos_row}'].value = str(pos_val).strip()
-        
         self._save_workbook(wb)
     
     def get_commission(self) -> Dict[str, Any]:
-        """Получает данные комиссии"""
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
         data = {
             'chairman': sheet['B3'].value or '',
             'chairman_position': sheet['B4'].value or '',
             'secretary': sheet['B16'].value or '',
             'secretary_position': sheet['B17'].value or '',
         }
-        
         member_mapping = {1: (6, 7), 2: (9, 10), 3: (12, 13), 4: (19, 20)}
-        
         for i in range(1, 5):
             name_row, pos_row = member_mapping[i]
             name_val = sheet[f'B{name_row}'].value
             pos_val = sheet[f'B{pos_row}'].value
             data[f'member_{i}'] = name_val if name_val is not None else ''
             data[f'member_{i}_position'] = pos_val if pos_val is not None else ''
-        
         return data
     
-    # ========== ОБНОВЛЁННЫЕ МЕТОДЫ ДЛЯ ОБЩИХ ДАННЫХ (ЕДИНЫЕ) ==========
-    
     def save_common_data_gos(self, common_data: Dict[str, Any], exam_state_date: str = None):
-        """
-        Сохраняет общие данные для госэкзамена (единые для ФИЭБ и Экзамена)
-        """
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
-        # Очищаем старые данные госэкзамена (строки 21-33)
         for row in range(21, 34):
             for col in [1, 2]:
                 sheet.cell(row=row, column=col).value = None
-        
-        # Записываем общие данные (начиная со строки 21)
         fields_mapping = {
             'direction': 'Направление подготовки',
             'group': 'Группа',
             'date': 'Дата экзамена',
             'dategek': 'Состав ГЭК утвержден приказом от'
         }
-        
         for i, (key, label) in enumerate(fields_mapping.items()):
             row = 21 + i
             value = common_data.get(key, '')
             if value:
                 sheet.cell(row=row, column=1, value=label)
                 sheet.cell(row=row, column=2, value=str(value).strip())
-        
-        # Записываем дату утверждения билетов (только для экзамена) - строка 26
         if exam_state_date:
             sheet.cell(row=26, column=1, value='Дата утверждения билетов')
             sheet.cell(row=26, column=2, value=str(exam_state_date).strip())
-        
         self._save_workbook(wb)
     
     def get_common_data_gos(self) -> Dict[str, Any]:
-        """
-        Получает общие данные для госэкзамена
-        Возвращает: direction, group, date, dategek, state_date
-        """
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
         data = {}
         fields = ['direction', 'group', 'date', 'dategek']
-        
         for i, field in enumerate(fields):
             value = sheet.cell(row=21 + i, column=2).value
             data[field] = value if value is not None else ''
-        
-        # Дата утверждения билетов (строка 26)
         state_date = sheet.cell(row=26, column=2).value
         data['state_date'] = state_date if state_date is not None else ''
-        
         return data
     
     def save_common_data_vkr(self, common_data: Dict[str, Any]):
-        """Сохраняет общие данные для ВКР"""
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
         start_row = 28
         for row in range(start_row, start_row + 5):
             for col in [1, 2]:
                 sheet.cell(row=row, column=col).value = None
-        
         fields_mapping = {
             'direction': 'Направление подготовки',
             'date': 'Дата защиты',
@@ -242,33 +199,26 @@ class Database:
             'order': 'Допущен до защиты приказом от',
             'quali': 'Квалификация'
         }
-        
         for i, (key, label) in enumerate(fields_mapping.items()):
             row = start_row + i
             value = common_data.get(key, '')
             if value:
                 sheet.cell(row=row, column=1, value=label)
                 sheet.cell(row=row, column=2, value=str(value).strip())
-        
         self._save_workbook(wb)
     
     def get_common_data_vkr(self) -> Dict[str, Any]:
-        """Получает общие данные для ВКР"""
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        
         start_row = 28
         fields = ['direction', 'date', 'dategek', 'order', 'quali']
-        
         data = {}
         for i, field in enumerate(fields):
             value = sheet.cell(row=start_row + i, column=2).value
             data[field] = value if value is not None else ''
-        
         return data
     
     def clear_all_common_data(self):
-        """Очищает все данные на листе "комиссия" включая данные комиссии"""
         try:
             wb = self._load_workbook()
             sheet = wb['комиссия']
@@ -285,7 +235,6 @@ class Database:
             return False
     
     def clear_common_data_only(self):
-        """Очищает только общие данные (ФИЭБ, Экзамен, ВКР), но не комиссию"""
         try:
             wb = self._load_workbook()
             sheet = wb['комиссия']
@@ -298,8 +247,6 @@ class Database:
         except Exception as e:
             print(f"❌ Ошибка очистки общих данных: {e}")
             return False
-    
-    # ========== МЕТОДЫ ДЛЯ СТУДЕНТОВ ==========
     
     def add_student(self, sheet_name: str, student_data: Dict[str, Any]) -> bool:
         try:
@@ -316,7 +263,6 @@ class Database:
             return False
     
     def _fill_from_common_data(self, sheet_name: str, student_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Заполняет данные студента из общих данных если поля пустые"""
         if sheet_name == 'тест':
             common = self.get_common_data_gos()
             for key in ['direction', 'group', 'date', 'dategek']:

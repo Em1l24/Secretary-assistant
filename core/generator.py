@@ -91,9 +91,7 @@ class DocumentGenerator:
         generated_files = []
         test_students = self.db.get_all_students('тест')
         exam_students = self.db.get_all_students('экзамен')
-        # 🔧 ИСПОЛЬЗУЕМ ЕДИНЫЙ МЕТОД БЕЗ ПАРАМЕТРОВ
         common_gos = self.db.get_common_data_gos()
-        
         if test_students or exam_students:
             book_data = exam_students[0] if exam_students else test_students[0]
             book_context = {
@@ -106,10 +104,8 @@ class DocumentGenerator:
             book_path = os.path.join(temp_dir, 'книга_протоколов_госы.docx')
             book_doc.save(book_path)
             generated_files.append(book_path)
-        
         member_4 = commission.get('member_4') if commission.get('member_4') else '–'
         position_4 = commission.get('member_4_position') if commission.get('member_4_position') else '–'
-        
         for i, student in enumerate(test_students, start=4):
             fio = student.get('fio')
             if not fio: continue
@@ -133,7 +129,6 @@ class DocumentGenerator:
             file_path = os.path.join(temp_dir, create_safe_filename(fio, 'тест', i))
             doc.save(file_path)
             generated_files.append(file_path)
-        
         for i, student in enumerate(exam_students, start=4):
             fio = student.get('fio')
             if not fio: continue
