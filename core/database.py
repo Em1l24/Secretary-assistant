@@ -90,8 +90,8 @@ class Database:
     
     def _create_headers(self, wb):
         vkr_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Тема дипломной работы', 'Научный руководитель', 'Дата защиты', 'Состав ГЭК утвержден приказом от', 'Должность, место работы дипломного руководителя', 'При консультации', 'Обучающийся допущен до защиты ВКР приказом от', 'Кол-во страниц', 'Чертежи', 'Иллюстрационный материал', 'Отзыв руководителя', 'Время сообщения ВКР', 'Заданные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'Квалификация', 'Выдать диплом', 'Отметить, что']
-        test_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', 'Оценка', 'Характеристика ответов обучающегося']
-        exam_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', '№ вытянутого билета', 'Дата утверждения билетов', 'Вопросы билета', 'Дополнительные вопросы', 'Характеристика ответов обучающегося', 'Оценка']
+        test_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', 'Оценка', 'Характеристика ответов обучающегося', 'created_at']
+        exam_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', '№ вытянутого билета', 'Дата утверждения билетов', 'Вопросы билета', 'Дополнительные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'created_at']
         commission_headers = ['ГЭК ТИУ', 'ГЭК ТИУ']
         self._write_headers(wb, 'ВКР', vkr_headers, start_row=4)
         self._write_headers(wb, 'тест', test_headers, start_row=4)
@@ -255,6 +255,11 @@ class Database:
             last_row = self._get_last_row(sheet)
             new_row = last_row + 1
             student_data = self._fill_from_common_data(sheet_name, student_data)
+            
+            # 🔧 Автоматически проставляем метку времени создания
+            if 'created_at' not in student_data:
+                student_data['created_at'] = datetime.now().isoformat()
+                
             self._fill_student_row(sheet, sheet_name, new_row, student_data)
             self._save_workbook(wb)
             return True
@@ -292,6 +297,13 @@ class Database:
         for key, col in mapping:
             value = student_data.get(key, '')
             sheet.cell(row=row, column=col, value=value)
+            
+            # 🔧 Безопасная запись/чтение времени создания
+        col_idx = 9 if sheet_name == 'тест' else (13 if sheet_name == 'экзамен' else 0)
+        if col_idx:
+            if not student_data.get('created_at'):
+                student_data['created_at'] = sheet.cell(row=row, column=col_idx).value
+            sheet.cell(row=row, column=col_idx, value=student_data.get('created_at'))
     
     def get_all_students(self, sheet_name: str) -> List[Dict[str, Any]]:
         try:
@@ -313,9 +325,14 @@ class Database:
         if sheet_name == 'ВКР':
             return {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'theme': sheet.cell(row=row, column=4).value, 'leader': sheet.cell(row=row, column=5).value, 'date': sheet.cell(row=row, column=6).value, 'dategek': sheet.cell(row=row, column=7).value, 'post': sheet.cell(row=row, column=8).value, 'con': sheet.cell(row=row, column=9).value, 'order': sheet.cell(row=row, column=10).value, 'pages': sheet.cell(row=row, column=11).value, 'con_1': sheet.cell(row=row, column=12).value, 'con_2': sheet.cell(row=row, column=13).value, 'review': sheet.cell(row=row, column=14).value, 'time': sheet.cell(row=row, column=15).value, 'questions': sheet.cell(row=row, column=16).value, 'property': sheet.cell(row=row, column=17).value, 'point': sheet.cell(row=row, column=18).value, 'quali': sheet.cell(row=row, column=19).value, 'diplom': sheet.cell(row=row, column=20).value, 'tom': sheet.cell(row=row, column=21).value}
         elif sheet_name == 'тест':
-            return {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'mark': sheet.cell(row=row, column=7).value, 'property': sheet.cell(row=row, column=8).value}
+            student = {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'mark': sheet.cell(row=row, column=7).value, 'property': sheet.cell(row=row, column=8).value}
+            student['created_at'] = sheet.cell(row=row, column=9).value
+            return student
+            
         elif sheet_name == 'экзамен':
-            return {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'ticket': sheet.cell(row=row, column=7).value, 'state_date': sheet.cell(row=row, column=8).value, 'questions': sheet.cell(row=row, column=9).value, 'add_questions': sheet.cell(row=row, column=10).value, 'property': sheet.cell(row=row, column=11).value, 'mark': sheet.cell(row=row, column=12).value}
+             student = {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'ticket': sheet.cell(row=row, column=7).value, 'state_date': sheet.cell(row=row, column=8).value, 'questions': sheet.cell(row=row, column=9).value, 'add_questions': sheet.cell(row=row, column=10).value, 'property': sheet.cell(row=row, column=11).value, 'mark': sheet.cell(row=row, column=12).value}
+             student['created_at'] = sheet.cell(row=row, column=13).value
+             return student
         return {}
     
     def delete_student(self, sheet_name: str, row_number: int) -> bool:
