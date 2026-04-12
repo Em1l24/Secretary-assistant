@@ -167,6 +167,12 @@ class VKRStudentDialog(Toplevel):
         self.geometry(f"900x700+{x}+{y}")
         ctk.set_appearance_mode("light")
         
+        self.property_texts = {
+        "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
+        "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
+        "Отлично": "даны грамотные и аргументированные ответы на поставленные вопросы. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся продемонстрировал высокий уровень подготовки к решению профессиональных задач, продемонстрировано свободное владение учебным материалом, получены исчерпывающие ответы на все вопросы билета и дополнительные вопросы членов ГЭК. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены"
+    }
+        
         self._create_widgets()
         
         if self.is_edit and student_data:
@@ -202,49 +208,69 @@ class VKRStudentDialog(Toplevel):
             ("Характеристика ответов", "property", 17), ("Оценка ", "point", 18),
             ("Выдать диплом", "diplom", 20), ("Отметить, что", "tom", 21),
         ]
-        
+        VKR_FIELD_SIZES = {
+            "questions": {"width": 480, "height": 300},  # Высота для вопросов
+            "tom":       {"width": 480, "height": 100},  # Высота для "Отметить, что"
+        }
+
         for label_text, key, row in field_config:
             row_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
             row_frame.pack(fill="x", pady=8)
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
             
-            if key == 'diplom':
-                    # 🔧 ComboBox для поля "Выдать диплом" (редактируемый по умолчанию)
-                    entry = ctk.CTkComboBox(
-                        row_frame,
-                        width=480,
-                        values=["с отличием", "без отличия"],
-                        font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
-                        dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
-                    )
-                    entry.set("") 
-            elif key == 'point':
-            # 🔧 ComboBox для оценки с возможностью редактирования
+            # Обработка поля "Характеристика ответов" с ComboBox
+            if key == 'property':
+                text_box = CTkTextboxWithMenu(row_frame, width=480, height=300)
+                text_box.grid(row=0, column=1, sticky="w")
+                self.fields[key] = text_box
+                
+                combo = ctk.CTkComboBox(
+                    row_frame, width=170,
+                    values=["Удовлетворительно", "Хорошо", "Отлично"],
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
+                    command=self._on_property_select
+                )
+                combo.set("")
+                combo.grid(row=0, column=2, padx=(10, 0), sticky="e")
+                self.fields[f'{key}_combo'] = combo
+                continue  # Выходим из цикла, чтобы не создавать entry ниже
+             
+            elif key == 'diplom':
                 entry = ctk.CTkComboBox(
-                    row_frame,
-                    width=480,
+                    row_frame, width=480,
+                    values=["с отличием", "без отличия"],
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
+                    dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
+                )
+                entry.set("") 
+                
+            elif key == 'point':
+                entry = ctk.CTkComboBox(
+                    row_frame, width=480,
                     values=["61 (удовлетворительно)", "76 (хорошо)", "91 (отлично)"],
                     font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
                     dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
-    )  
+                )  
                 entry.set("")   
              
-            # ✅ ИСПРАВЛЕНИЕ 2: Выпадающий список для Отзыва
             elif key == 'review':
                 entry = ctk.CTkComboBox(
-                    row_frame,
-                    width=480,
+                    row_frame, width=480,
                     values=["удовлетворительно", "хорошо", "отлично"],
                     font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
                     dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
                 )
-                entry.set("")  # Пустое значение по умолчанию
+                entry.set("")  
                 
-            elif key in ['questions', 'property', 'tom', 'theme']:
-                entry = CTkTextboxWithMenu(row_frame, width=480, height=70)
+            # 🔧 ИСПРАВЛЕНИЕ: Берём размеры из VKR_FIELD_SIZES
+            elif key in ['questions', 'tom', 'theme']:
+                sizes = VKR_FIELD_SIZES.get(key, {"width": 480, "height": 70}) # Дефолт, если ключа нет
+                entry = CTkTextboxWithMenu(row_frame, width=sizes["width"], height=sizes["height"])
+                
             else:
                 entry = CTkEntryWithMenu(row_frame, width=480)
             
+            # Общее размещение для всех полей (кроме property)
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
 
@@ -253,6 +279,13 @@ class VKRStudentDialog(Toplevel):
         ModernButton(btn_frame, text="💾 Сохранить", command=self._save, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
         ctk.CTkButton(btn_frame, text="❌ Отмена", command=self.destroy, fg_color="#e5e7eb", hover_color="#d1d5db", text_color=DesignConfig.TEXT_PRIMARY, width=150, height=35, corner_radius=DesignConfig.CORNER_RADIUS, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY, weight="bold")).pack(side="left", padx=8)
 
+    def _on_property_select(self, choice):
+        if choice and 'property' in self.fields:
+            text = self.property_texts.get(choice, "")
+            if text:
+               self.fields['property'].delete("1.0", "end")
+               self.fields['property'].insert("1.0", text)  
+        
     def _auto_fill_protocol(self, sheet_name):
         try:
             students = self.parent.db.get_all_students(sheet_name)
@@ -266,13 +299,15 @@ class VKRStudentDialog(Toplevel):
 
     def _fill_data(self, data):
         for key, widget in self.fields.items():
+            if key.endswith('_combo'):  # Пропускаем ComboBox при заполнении
+                continue
             value = data.get(key, '')
             if value:
                 if isinstance(widget, CTkTextboxWithMenu):
                     widget.delete("1.0", "end")
                     widget.insert("1.0", str(value))
                 elif isinstance(widget, ctk.CTkComboBox):
-                    widget.set(str(value)) # ✅ Поддержка ComboBox
+                    widget.set(str(value)) #  Поддержка ComboBox
                 else:
                     widget.delete(0, 'end')
                     widget.insert(0, str(value))
@@ -280,6 +315,8 @@ class VKRStudentDialog(Toplevel):
     def _save(self):
         result = {}
         for key, widget in self.fields.items():
+            if key.endswith('_combo'):  # Пропускаем ComboBox при сохранении
+                continue
             if isinstance(widget, CTkTextboxWithMenu):
                 result[key] = widget.get("1.0", "end").strip()
             elif isinstance(widget, ctk.CTkComboBox):
