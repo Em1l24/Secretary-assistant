@@ -1,4 +1,3 @@
-# core/database.py
 import openpyxl
 import os
 import sys
@@ -7,7 +6,6 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 class Database:
-    """Класс для работы с Excel-базой данных"""
     
     def __init__(self, db_path: str = None):
         if db_path is None:
@@ -34,17 +32,17 @@ class Database:
     def _check_first_run(self):
         try:
             if not os.path.exists(self.first_run_flag):
-                print("🔄 ПЕРВЫЙ ЗАПУСК - очищаем все данные...")
+                print("ПЕРВЫЙ ЗАПУСК - очищаем все данные...")
                 if os.path.exists(self.db_path):
                     self._clear_all_data()
                 Path(self.first_run_flag).parent.mkdir(parents=True, exist_ok=True)
                 with open(self.first_run_flag, 'w', encoding='utf-8') as f:
                     f.write('initialized')
-                print("✅ Флаг первого запуска создан")
+                print("Флаг первого запуска создан")
             else:
-                print("📁 Флаг найден - данные не очищаем")
+                print("Флаг найден - данные не очищаем")
         except Exception as e:
-            print(f"⚠️ Ошибка проверки первого запуска: {e}")
+            print(f"Ошибка проверки первого запуска: {e}")
     
     def _clear_all_data(self):
         try:
@@ -63,10 +61,10 @@ class Database:
                     for row in range(max_row, 3, -1):
                         sheet.delete_rows(row)
             wb.save(self.db_path)
-            print("✅ Все данные очищены")
+            print("Все данные очищены")
             return True
         except Exception as e:
-            print(f"❌ Ошибка очистки данных: {e}")
+            print(f"Ошибка очистки данных: {e}")
             return False
     
     def _ensure_db_exists(self):
@@ -74,10 +72,10 @@ class Database:
             db_dir = Path(self.db_path).parent
             db_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            print(f"⚠️ Не удалось создать папку: {e}")
+            print(f"Не удалось создать папку: {e}")
         
         if not os.path.exists(self.db_path):
-            print("📁 Создаём новый Excel файл...")
+            print("Создаём новый Excel файл...")
             wb = openpyxl.Workbook()
             for sheet_name in ['тест', 'экзамен', 'ВКР', 'комиссия']:
                 if sheet_name not in wb.sheetnames:
@@ -86,7 +84,7 @@ class Database:
                 del wb['Sheet']
             self._create_headers(wb)
             wb.save(self.db_path)
-            print("✅ Excel файл создан")
+            print("Excel файл создан")
     
     def _create_headers(self, wb):
         vkr_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Тема дипломной работы', 'Научный руководитель', 'Дата защиты', 'Состав ГЭК утвержден приказом от', 'Должность, место работы дипломного руководителя', 'При консультации', 'Обучающийся допущен до защиты ВКР приказом от', 'Кол-во страниц', 'Чертежи', 'Иллюстрационный материал', 'Отзыв руководителя', 'Время сообщения ВКР', 'Заданные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'Квалификация', 'Выдать диплом', 'Отметить, что']
@@ -228,10 +226,10 @@ class Database:
                     for col in [1, 2]:
                         sheet.cell(row=row, column=col).value = None
             self._save_workbook(wb)
-            print("✅ Все данные на листе 'комиссия' очищены")
+            print("Все данные на листе 'комиссия' очищены")
             return True
         except Exception as e:
-            print(f"❌ Ошибка очистки данных: {e}")
+            print(f"Ошибка очистки данных: {e}")
             return False
     
     def clear_common_data_only(self):
@@ -242,10 +240,10 @@ class Database:
                 for col in [1, 2]:
                     sheet.cell(row=row, column=col).value = None
             self._save_workbook(wb)
-            print("✅ Общие данные очищены")
+            print("Общие данные очищены")
             return True
         except Exception as e:
-            print(f"❌ Ошибка очистки общих данных: {e}")
+            print(f"Ошибка очистки общих данных: {e}")
             return False
     
     def add_student(self, sheet_name: str, student_data: Dict[str, Any]) -> bool:
@@ -254,17 +252,17 @@ class Database:
             sheet = wb[sheet_name]
             last_row = self._get_last_row(sheet)
             new_row = last_row + 1
-            student_data = self._fill_from_common_data(sheet_name, student_data)
             
-            # 🔧 Автоматически проставляем метку времени создания
+            # Автоматически проставляем метку времени создания
             if 'created_at' not in student_data:
                 student_data['created_at'] = datetime.now().isoformat()
                 
+            student_data = self._fill_from_common_data(sheet_name, student_data)    
             self._fill_student_row(sheet, sheet_name, new_row, student_data)
             self._save_workbook(wb)
             return True
         except Exception as e:
-            print(f"❌ Ошибка добавления студента: {e}")
+            print(f"Ошибка добавления студента: {e}")
             return False
     
     def _fill_from_common_data(self, sheet_name: str, student_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -294,16 +292,17 @@ class Database:
             mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('group', 4), ('date', 5), ('dategek', 6), ('ticket', 7), ('state_date', 8), ('questions', 9), ('add_questions', 10), ('property', 11), ('mark', 12)]
         else:
             return
+        
+        # Записываем все поля из mapping
         for key, col in mapping:
             value = student_data.get(key, '')
-            sheet.cell(row=row, column=col, value=value)
+            sheet.cell(row=row, column=col, value=value if value else '')
             
-            # 🔧 Безопасная запись/чтение времени создания
-        col_idx = 9 if sheet_name == 'тест' else (13 if sheet_name == 'экзамен' else 0)
-        if col_idx:
-            if not student_data.get('created_at'):
-                student_data['created_at'] = sheet.cell(row=row, column=col_idx).value
-            sheet.cell(row=row, column=col_idx, value=student_data.get('created_at'))
+        # Безопасно записываем created_at в отдельную колонку
+        if sheet_name == 'тест':
+            sheet.cell(row=row, column=9, value=student_data.get('created_at', ''))
+        elif sheet_name == 'экзамен':
+            sheet.cell(row=row, column=13, value=student_data.get('created_at', ''))   
     
     def get_all_students(self, sheet_name: str) -> List[Dict[str, Any]]:
         try:

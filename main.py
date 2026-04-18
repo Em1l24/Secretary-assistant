@@ -1,8 +1,3 @@
-# main.py
-"""
-Цифровой помощник секретаря ГЭК
-Версия: 10.5 (Автозаполнение характеристики для Экзамена)
-"""
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, Menu
 import os
@@ -169,8 +164,8 @@ class VKRStudentDialog(Toplevel):
         
         self.property_texts = {
         "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
-        "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
-        "Отлично": "даны грамотные и аргументированные ответы на поставленные вопросы. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся продемонстрировал высокий уровень подготовки к решению профессиональных задач, продемонстрировано свободное владение учебным материалом, получены исчерпывающие ответы на все вопросы билета и дополнительные вопросы членов ГЭК. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены"
+        "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках.	Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
+        "Отлично": "в ходе ответа выпускником продемонстрированы глубокие знания материала, получены исчерпывающие логически обоснованные ответы на все вопросы, сделаны содержательные выводы к каждому ответу. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены"
     }
         
         self._create_widgets()
@@ -179,12 +174,12 @@ class VKRStudentDialog(Toplevel):
             self._fill_data(student_data)
         else:
             self._auto_fill_protocol('ВКР')
-            # ✅ ИСПРАВЛЕНИЕ 1: Отступы выровнены, код ВНУТРИ else
+            
             for key in ['con', 'con_1', 'con_2']:
                 if key in self.fields:
                     self.fields[key].insert(0, "–")
              
-             # 🔧 Автозаполнение для поля "Отметить, что" (tom)
+             # Автозаполнение для поля "Отметить, что" (tom)
             if 'tom' in self.fields:
                 self.fields['tom'].delete("1.0", "end")
                 self.fields['tom'].insert("1.0", "обучающийся готов к решению профессиональных задач, недостатков в теоретической и практической подготовке обучающегося не выявлено")
@@ -194,8 +189,7 @@ class VKRStudentDialog(Toplevel):
         main_frame.pack(fill="both", expand=True, padx=24, pady=24)
         header = ctk.CTkFrame(main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
-        ctk.CTkLabel(header, text="Данные студента для защиты ВКР", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
-        ctk.CTkLabel(header, text="⚠️ Общие данные (Направление, Дата защиты и др.) заполняются во вкладке 'Общие данные'", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.WARNING).pack(anchor="w", pady=(4, 0))
+        ctk.CTkLabel(header, text="Данные студента для ВКР", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
         
         self.fields = {}
         field_config = [
@@ -209,8 +203,8 @@ class VKRStudentDialog(Toplevel):
             ("Выдать диплом", "diplom", 20), ("Отметить, что", "tom", 21),
         ]
         VKR_FIELD_SIZES = {
-            "questions": {"width": 480, "height": 300},  # Высота для вопросов
-            "tom":       {"width": 480, "height": 100},  # Высота для "Отметить, что"
+            "questions": {"width": 480, "height": 300},  
+            "tom":       {"width": 480, "height": 100},  
         }
 
         for label_text, key, row in field_config:
@@ -218,7 +212,6 @@ class VKRStudentDialog(Toplevel):
             row_frame.pack(fill="x", pady=8)
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
             
-            # Обработка поля "Характеристика ответов" с ComboBox
             if key == 'property':
                 text_box = CTkTextboxWithMenu(row_frame, width=480, height=300)
                 text_box.grid(row=0, column=1, sticky="w")
@@ -233,7 +226,7 @@ class VKRStudentDialog(Toplevel):
                 combo.set("")
                 combo.grid(row=0, column=2, padx=(10, 0), sticky="e")
                 self.fields[f'{key}_combo'] = combo
-                continue  # Выходим из цикла, чтобы не создавать entry ниже
+                continue  
              
             elif key == 'diplom':
                 entry = ctk.CTkComboBox(
@@ -262,15 +255,13 @@ class VKRStudentDialog(Toplevel):
                 )
                 entry.set("")  
                 
-            # 🔧 ИСПРАВЛЕНИЕ: Берём размеры из VKR_FIELD_SIZES
             elif key in ['questions', 'tom', 'theme']:
-                sizes = VKR_FIELD_SIZES.get(key, {"width": 480, "height": 70}) # Дефолт, если ключа нет
+                sizes = VKR_FIELD_SIZES.get(key, {"width": 480, "height": 70}) 
                 entry = CTkTextboxWithMenu(row_frame, width=sizes["width"], height=sizes["height"])
                 
             else:
                 entry = CTkEntryWithMenu(row_frame, width=480)
             
-            # Общее размещение для всех полей (кроме property)
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
 
@@ -295,11 +286,11 @@ class VKRStudentDialog(Toplevel):
                 self.fields['protocol'].delete(0, 'end')
                 self.fields['protocol'].insert(0, protocol_value)
         except Exception as e:
-            print(f"⚠️ Ошибка автозаполнения протокола: {e}")
+            print(f" Ошибка автозаполнения протокола: {e}")
 
     def _fill_data(self, data):
         for key, widget in self.fields.items():
-            if key.endswith('_combo'):  # Пропускаем ComboBox при заполнении
+            if key.endswith('_combo'):  
                 continue
             value = data.get(key, '')
             if value:
@@ -307,7 +298,7 @@ class VKRStudentDialog(Toplevel):
                     widget.delete("1.0", "end")
                     widget.insert("1.0", str(value))
                 elif isinstance(widget, ctk.CTkComboBox):
-                    widget.set(str(value)) #  Поддержка ComboBox
+                    widget.set(str(value)) 
                 else:
                     widget.delete(0, 'end')
                     widget.insert(0, str(value))
@@ -315,19 +306,19 @@ class VKRStudentDialog(Toplevel):
     def _save(self):
         result = {}
         for key, widget in self.fields.items():
-            if key.endswith('_combo'):  # Пропускаем ComboBox при сохранении
+            if key.endswith('_combo'):  
                 continue
             if isinstance(widget, CTkTextboxWithMenu):
                 result[key] = widget.get("1.0", "end").strip()
             elif isinstance(widget, ctk.CTkComboBox):
-                result[key] = widget.get().strip() # ✅ Сохранение из ComboBox
+                result[key] = widget.get().strip() 
             else:
                 result[key] = widget.get().strip()
         
         required = ['fio']
         for field in required:
             if not result.get(field):
-                messagebox.showerror("Ошибка", f"Поле '{field}' обязательно!")
+                messagebox.showerror("Ошибка", f"Поле 'ФИО студента' обязательно для заполнения!")
                 return
         
         if self.is_edit and self.student_data:
@@ -344,35 +335,45 @@ class GosStudentDialog(Toplevel):
         self.gos_type = gos_type
         self.student_data = student_data
         self.is_edit = student_data is not None
+        
         display_type = "📝 ФИЭБ" if gos_type == "тест" else "📚 Экзамен"
         edit_title = "✏️ Редактировать" if self.is_edit else "➕ Добавить"
         self.title(f"{edit_title} студента ({display_type})")
+        
         self.geometry("900x700")
         self.minsize(800, 600)
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
+        
         x = (self.winfo_screenwidth() - 900) // 2
         y = (self.winfo_screenheight() - 700) // 2
         self.geometry(f"900x700+{x}+{y}")
+        
         ctk.set_appearance_mode("light")
+        
         self.property_texts = {
             "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
             "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
             "Отлично": "даны грамотные и аргументированные ответы на поставленные вопросы. Мнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся продемонстрировал высокий уровень подготовки к решению профессиональных задач, продемонстрировано свободное владение учебным материалом, получены исчерпывающие ответы на все вопросы билета и дополнительные вопросы членов ГЭК. Мнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены"
         }
+        
         self._create_widgets()
+        
         if self.is_edit and student_data:
             self._fill_data(student_data)
         else:
+            # Автоматический расчет протокола
             students_test = self.parent.db.get_all_students('тест')
             students_exam = self.parent.db.get_all_students('экзамен')
             total_gos_count = len(students_test) + len(students_exam)
             next_num = total_gos_count + 1
             protocol_value = f"{next_num}-1"
+            
             if 'protocol' in self.fields:
                 self.fields['protocol'].delete(0, 'end')
                 self.fields['protocol'].insert(0, protocol_value)
+                
             if self.gos_type == "тест" and 'property' in self.fields:
                 auto_text = "В качестве результатов ГЭ были зачтены результаты полученные обучающимся при прохождении тестирования федерального интернет-экзамена для выпускника бакалавриата"
                 if isinstance(self.fields['property'], CTkTextboxWithMenu):
@@ -382,11 +383,12 @@ class GosStudentDialog(Toplevel):
     def _create_widgets(self):
         main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         main_frame.pack(fill="both", expand=True, padx=24, pady=24)
+        
         header = ctk.CTkFrame(main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
-        inner_type_text = "ФИЭБ" if self.gos_type == "тест" else "Экзамен"
-        ctk.CTkLabel(header, text=f"Данные студента для госэкзамена ({inner_type_text})", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
-        ctk.CTkLabel(header, text="⚠️ Общие данные (Направление, Группа, Дата и др.) заполняются во вкладке 'Общие данные'", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.WARNING).pack(anchor="w", pady=(4, 0))
+        inner_type_text = "ФИЭБ" if self.gos_type == "тест" else "Экзамена"
+        ctk.CTkLabel(header, text=f"Данные студента для {inner_type_text}", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
+        
         self.fields = {}
         common_fields = [
             ("ФИО студента *", "fio", 1),
@@ -394,24 +396,24 @@ class GosStudentDialog(Toplevel):
             ("Характеристика ответов", "property", 7),
             ("Оценка ", "mark", 8),
         ]
+        
         for label_text, key, row in common_fields:
             row_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
             row_frame.pack(fill="x", pady=8)
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
+            
             if key == 'property':
                 if self.gos_type == "тест":
                     text_box = CTkTextboxWithMenu(row_frame, width=480, height=110)
-                    text_box.grid(row=0, column=1, sticky="w")
-                    self.fields[key] = text_box
-                    auto_text = "В качестве результатов ГЭ были зачтены результаты полученные обучающимся при прохождении тестирования федерального интернет-экзамена для выпускника бакалавриата"
-                    text_box.insert("1.0", auto_text)
                 else:
                     text_box = CTkTextboxWithMenu(row_frame, width=480, height=250)
-                    text_box.grid(row=0, column=1, sticky="w")
-                    self.fields[key] = text_box
+                
+                text_box.grid(row=0, column=1, sticky="w")
+                self.fields[key] = text_box
+                
+                if self.gos_type == "экзамен":
                     combo = ctk.CTkComboBox(
-                        row_frame,
-                        width=170,
+                        row_frame, width=170,
                         values=["Удовлетворительно", "Хорошо", "Отлично"],
                         font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
                         command=self._on_property_select
@@ -419,11 +421,12 @@ class GosStudentDialog(Toplevel):
                     combo.set("")
                     combo.grid(row=0, column=2, padx=(10, 0), sticky="e")
                     self.fields[f'{key}_combo'] = combo
-                    continue
+                
+                continue 
+                
             elif key == 'mark':
                 entry = ctk.CTkComboBox(
-                    row_frame,
-                    width=480,
+                    row_frame, width=480,
                     values=["61 баллов (удовлетворительно)", "76 баллов (хорошо)", "91 баллов (отлично)"],
                     font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
                     dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
@@ -431,24 +434,28 @@ class GosStudentDialog(Toplevel):
                 entry.set("")
             else:
                 entry = CTkEntryWithMenu(row_frame, width=480)
+            
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
-            EXAM_FIELD_SIZES = {
-                "ticket":        {"width": 130, "height": 35},  # № вытянутого билета
-                "questions":     {"width": 580, "height": 300},  # Вопросы билета
-                "add_questions": {"width": 580, "height": 300}   # Доп. вопросы
-            }
+
+        EXAM_FIELD_SIZES = {
+            "ticket":        {"width": 130, "height": 35},
+            "questions":     {"width": 580, "height": 300},
+            "add_questions": {"width": 580, "height": 300}
+        }
+        
         if self.gos_type == "экзамен":
             exam_fields = [("№ вытянутого билета ", "ticket", 9), ("Вопросы билета", "questions", 11), ("Дополнительные вопросы", "add_questions", 12)]
             for label_text, key, row in exam_fields:
                 row_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
                 row_frame.pack(fill="x", pady=8)
                 ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
-                 # 🔑 Берём индивидуальные размеры и создаём виджет ОДИН раз
+                
                 sizes = EXAM_FIELD_SIZES.get(key, {"width": 580, "height": 300})
                 entry = CTkTextboxWithMenu(row_frame, width=sizes["width"], height=sizes["height"])
                 entry.grid(row=0, column=1, sticky="w")
                 self.fields[key] = entry
+
         btn_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
         ModernButton(btn_frame, text="💾 Сохранить", command=self._save, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
@@ -487,13 +494,22 @@ class GosStudentDialog(Toplevel):
                 result[key] = widget.get().strip()
             else:
                 result[key] = widget.get().strip()
+        
+        # Страховка для ФИЭБ. Если по какой-то причине поле пустое или совпадает с протоколом -> исправляем
+        if self.gos_type == "тест":
+            correct_text = "В качестве результатов ГЭ были зачтены результаты полученные обучающимся при прохождении тестирования федерального интернет-экзамена для выпускника бакалавриата"
+            if not result.get('property') or result.get('property') == result.get('protocol'):
+                result['property'] = correct_text
+
         required = ['fio']
         for field in required:
             if not result.get(field):
-                messagebox.showerror("Ошибка", f"Поле '{field}' обязательно!")
+                messagebox.showerror("Ошибка", f"Поле 'ФИО студента' обязательно для заполнения!")
                 return
+                
         if self.is_edit and self.student_data:
             result['_row'] = self.student_data.get('_row')
+            
         self.callback(result)
         self.destroy()
 
@@ -521,6 +537,7 @@ class CommonDataDialog(Toplevel):
         header.pack(fill="x", pady=(0, 20))
         ctk.CTkLabel(header, text="📋 Общие данные", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
         ctk.CTkLabel(header, text="Эти данные будут автоматически подставляться для всех студентов", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY).pack(anchor="w", pady=(4, 0))
+        
         self.fields = {}
         gos_card = ModernCard(main_frame, title="🎯 Государственный экзамен (общие данные для ФИЭБ и Экзамена)")
         gos_card.pack(fill="x", pady=10)
@@ -530,6 +547,7 @@ class CommonDataDialog(Toplevel):
             ("Дата экзамена", "gos_date"),
             ("Состав ГЭК утвержден приказом от", "gos_dategek"),
         ]
+        
         for label_text, key in gos_fields:
             row = ctk.CTkFrame(gos_card, fg_color="transparent")
             row.pack(fill="x", pady=6, padx=16)
@@ -549,6 +567,7 @@ class CommonDataDialog(Toplevel):
             self.fields[key] = entry
         vkr_card = ModernCard(main_frame, title="📄 ВКР")
         vkr_card.pack(fill="x", pady=10)
+        
         vkr_fields_config = [
             ("Направление подготовки", "vkr_direction", "entry"),
             ("Дата защиты", "vkr_date", "entry"),
@@ -556,6 +575,7 @@ class CommonDataDialog(Toplevel):
             ("Допущен до защиты приказом от", "vkr_order", "entry"),
             ("Квалификация", "vkr_quali", "combobox"),
         ]
+        
         for label_text, key, field_type in vkr_fields_config:
             row = ctk.CTkFrame(vkr_card, fg_color="transparent")
             row.pack(fill="x", pady=6, padx=16)
@@ -623,18 +643,18 @@ class CommonDataDialog(Toplevel):
                 if value:
                     vkr_data[key] = value
         self.callback('save_vkr', vkr_data)
-        messagebox.showinfo("Успешно", "✅ Общие данные сохранены!")
+        messagebox.showinfo("Успешно", "Общие данные сохранены!")
         self.destroy()
 
     def _clear_common_data(self):
-        if messagebox.askyesno("Подтверждение", "⚠️ Очистить ВСЕ общие данные?"):
+        if messagebox.askyesno("Подтверждение", "Очистить ВСЕ общие данные?"):
             self.callback('clear_common_data_only')
             for entry in self.fields.values():
                 if isinstance(entry, ctk.CTkComboBox):
                     entry.set("")
                 else:
                     entry.delete(0, 'end')
-            messagebox.showinfo("Успешно", "✅ Все общие данные очищены!")
+            messagebox.showinfo("Успешно", "Все общие данные очищены!")
 
 class GECAssistantApp(ctk.CTk):
     def __init__(self):
@@ -725,7 +745,7 @@ class GECAssistantApp(ctk.CTk):
         ModernButton(self.section_content, text="📋 Заполнить общие данные (ФИЭБ, Экзамен, ВКР)", command=self._open_common_data, color=DesignConfig.PRIMARY).pack(pady=10)
         chairman_card = ModernCard(self.section_content, title="👤 Председатель ГЭК")
         chairman_card.pack(fill="x", pady=10)
-        for label_text, key in [("ФИО председателя *", "chairman"), ("Должность *", "chairman_position")]:
+        for label_text, key in [("ФИО *", "chairman"), ("Должность *", "chairman_position")]:
             row = ctk.CTkFrame(chairman_card, fg_color="transparent")
             row.pack(fill="x", pady=8, padx=16)
             ctk.CTkLabel(row, text=label_text, width=280, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=16)).pack(side="left")
@@ -781,16 +801,16 @@ class GECAssistantApp(ctk.CTk):
         required = ['chairman', 'chairman_position', 'secretary', 'secretary_position']
         for field in required:
             if not data.get(field):
-                messagebox.showerror("Ошибка", f"Поле '{field}' обязательно!")
+                messagebox.showerror("Ошибка", f"Не все обязательные поля заполнены!")
                 return
         for i in [1, 2, 3]:
             name_key = f'member_{i}'
             pos_key = f'member_{i}_position'
             if not data.get(name_key) or not data.get(pos_key):
-                messagebox.showerror("Ошибка", f"Обязательно заполните ФИО и должность Члена #{i}!")
+                messagebox.showerror("Ошибка", f"Обязательно заполните ФИО и должность Члена {i}!")
                 return
         self.db.save_commission(data)
-        messagebox.showinfo("Успешно", "✅ Данные комиссии сохранены!")
+        messagebox.showinfo("Успешно", "Данные комиссии сохранены!")
 
     def _load_commission(self):
         if not hasattr(self, 'commission_fields'):
@@ -802,7 +822,7 @@ class GECAssistantApp(ctk.CTk):
                 self.commission_fields[key].insert(0, str(value))
 
     def _clear_commission_only(self):
-        if messagebox.askyesno("Подтверждение", "⚠️ Очистить данные комиссии?"):
+        if messagebox.askyesno("Подтверждение", "Очистить данные комиссии?"):
             commission_keys = ['chairman', 'chairman_position', 'secretary', 'secretary_position']
             for i in range(1, 5):
                 commission_keys.extend([f'member_{i}', f'member_{i}_position'])
@@ -811,7 +831,7 @@ class GECAssistantApp(ctk.CTk):
                     self.commission_fields[key].delete(0, 'end')
             empty_data = {key: '' for key in commission_keys}
             self.db.save_commission(empty_data)
-            messagebox.showinfo("Успешно", "✅ Данные комиссии очищены!")
+            messagebox.showinfo("Успешно", "Данные комиссии очищены!")
 
     def _create_vkr_content(self):
         for widget in self.section_content.winfo_children():
@@ -853,7 +873,7 @@ class GECAssistantApp(ctk.CTk):
         self.gen_vkr = ctk.BooleanVar(value=False)
         self.gen_gos = ctk.BooleanVar(value=False)
         for text, var, desc in [
-            ("🎯 Протоколы Госэкзамена", self.gen_gos, "Сгенерировать протоколы для государственного экзамена (тест/экзамен)"),
+            ("🎯 Протоколы Госэкзамена", self.gen_gos, "Сгенерировать протоколы для государственного экзамена (ФИЭБ/Экзамен)"),
             ("📄 Протоколы ВКР", self.gen_vkr, "Сгенерировать протоколы для выпускных квалификационных работ")
         ]:
             item = ctk.CTkFrame(options_card, fg_color="transparent")
@@ -909,7 +929,7 @@ class GECAssistantApp(ctk.CTk):
             s['_type'] = 'экзамен'
             all_students.append(s)
             
-        # 🔧 Сортировка по времени создания (ISO-формат корректно сортируется строково)
+        # Сортировка по времени создания (ISO-формат корректно сортируется строково)
         all_students.sort(key=lambda x: x.get('created_at') or '1900-01-01T00:00:00')
     
         self.gos_count_label.configure(text=f"Студентов: {len(all_students)}")
@@ -944,15 +964,15 @@ class GECAssistantApp(ctk.CTk):
         if row:
             if self.db.update_student('ВКР', row, data):
                 self._refresh_vkr_table()
-                messagebox.showinfo("Успешно", "✅ Данные студента обновлены!")
+                messagebox.showinfo("Успешно", "Данные студента обновлены!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось обновить данные")
+                messagebox.showerror("Ошибка", "Не удалось обновить данные")
         else:
             if self.db.add_student('ВКР', data):
                 self._refresh_vkr_table()
-                messagebox.showinfo("Успешно", "✅ Студент добавлен!")
+                messagebox.showinfo("Успешно", "Студент добавлен!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось добавить студента")
+                messagebox.showerror("Ошибка", "Не удалось добавить студента")
 
     def _delete_vkr_student(self, student):
         fio = student.get('fio')
@@ -960,9 +980,9 @@ class GECAssistantApp(ctk.CTk):
         if messagebox.askyesno("Подтверждение", f"Удалить студента {fio}?"):
             if row and self.db.delete_student('ВКР', row):
                 self._refresh_vkr_table()
-                messagebox.showinfo("Успешно", "✅ Студент удалён!")
+                messagebox.showinfo("Успешно", "Студент удалён!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось удалить студента")
+                messagebox.showerror("Ошибка", "Не удалось удалить студента")
 
     def _add_gos_student(self):
         gos_type = self.gos_type_var.get()
@@ -978,15 +998,15 @@ class GECAssistantApp(ctk.CTk):
         if row:
             if self.db.update_student(sheet_name, row, data):
                 self._refresh_gos_table()
-                messagebox.showinfo("Успешно", "✅ Данные студента обновлены!")
+                messagebox.showinfo("Успешно", "Данные студента обновлены!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось обновить данные")
+                messagebox.showerror("Ошибка", "Не удалось обновить данные")
         else:
             if self.db.add_student(sheet_name, data):
                 self._refresh_gos_table()
-                messagebox.showinfo("Успешно", "✅ Студент добавлен!")
+                messagebox.showinfo("Успешно", "Студент добавлен!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось добавить студента")
+                messagebox.showerror("Ошибка", "Не удалось добавить студента")
 
     def _delete_gos_student(self, student):
         fio = student.get('fio')
@@ -996,44 +1016,44 @@ class GECAssistantApp(ctk.CTk):
                 sheet_name = student.get('_type', 'тест')
                 if self.db.delete_student(sheet_name, row):
                     self._refresh_gos_table()
-                    messagebox.showinfo("Успешно", "✅ Студент удалён!")
+                    messagebox.showinfo("Успешно", "Студент удалён!")
                 else:
-                    messagebox.showerror("Ошибка", "❌ Не удалось удалить студента")
+                    messagebox.showerror("Ошибка", "Не удалось удалить студента")
 
     def _clear_vkr(self):
         if messagebox.askyesno("Подтверждение", "Очистить весь список ВКР?"):
             if self.db.clear_sheet('ВКР'):
                 self._refresh_vkr_table()
-                messagebox.showinfo("Успешно", "✅ Список ВКР очищен!")
+                messagebox.showinfo("Успешно", "Список ВКР очищен!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось очистить список")
+                messagebox.showerror("Ошибка", "Не удалось очистить список")
 
     def _clear_gos(self):
         if messagebox.askyesno("Подтверждение", "Очистить весь список госэкзамена?"):
             if self.db.clear_sheet('тест') and self.db.clear_sheet('экзамен'):
                 self._refresh_gos_table()
-                messagebox.showinfo("Успешно", "✅ Список госэкзамена очищен!")
+                messagebox.showinfo("Успешно", "Список госэкзамена очищен!")
             else:
-                messagebox.showerror("Ошибка", "❌ Не удалось очистить список")
+                messagebox.showerror("Ошибка", "Не удалось очистить список")
 
     def _generate_documents(self):
         gen_vkr = self.gen_vkr.get()
         gen_gos = self.gen_gos.get()
         if not gen_vkr and not gen_gos:
-            messagebox.showwarning("Внимание", "⚠️ Выберите хотя бы один тип документов!")
+            messagebox.showwarning("Внимание", "Выберите хотя бы один тип документов!")
             return
         commission = self.db.get_commission()
         if not commission.get('chairman'):
-            messagebox.showerror("Ошибка", "❌ Сначала заполните данные комиссии!")
+            messagebox.showerror("Ошибка", "Сначала заполните данные комиссии!")
             return
         vkr_count = len(self.db.get_all_students('ВКР'))
         test_count = len(self.db.get_all_students('тест'))
         exam_count = len(self.db.get_all_students('экзамен'))
         if gen_vkr and vkr_count == 0:
-            messagebox.showwarning("Внимание", "⚠️ Нет студентов ВКР для генерации!")
+            messagebox.showwarning("Внимание", "Нет студентов ВКР для генерации!")
             return
         if gen_gos and test_count == 0 and exam_count == 0:
-            messagebox.showwarning("Внимание", "⚠️ Нет студентов госэкзамена для генерации!")
+            messagebox.showwarning("Внимание", "Нет студентов госэкзамена для генерации!")
             return
         try:
             self.progress_label.configure(text="⏳ Генерация документов...")
@@ -1041,11 +1061,11 @@ class GECAssistantApp(ctk.CTk):
             self.update()
             archive_path = self.generator.generate(gen_vkr, gen_gos)
             self.progress_bar.set(1.0)
-            self.progress_label.configure(text=f"✅ Готово! Архив: {os.path.basename(archive_path)}")
-            messagebox.showinfo("Успешно", f"✅ Документы сгенерированы!\n📦 Архив:\n{archive_path}")
+            self.progress_label.configure(text=f"Готово! Архив: {os.path.basename(archive_path)}")
+            messagebox.showinfo("Успешно", f"Документы сгенерированы!\n Архив:\n{archive_path}")
         except Exception as e:
-            self.progress_label.configure(text=f"❌ Ошибка: {str(e)}")
-            messagebox.showerror("Ошибка", f"❌ Не удалось сгенерировать документы:\n{str(e)}")
+            self.progress_label.configure(text=f"Ошибка: {str(e)}")
+            messagebox.showerror("Ошибка", f"Не удалось сгенерировать документы:\n{str(e)}")
 
 if __name__ == "__main__":
     app = GECAssistantApp()

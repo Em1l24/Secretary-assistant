@@ -1,4 +1,3 @@
-# core/generator.py
 from docxtpl import DocxTemplate
 import zipfile, os, sys, tempfile, shutil, subprocess
 from pathlib import Path
@@ -126,7 +125,7 @@ class DocumentGenerator:
             }
             doc = DocxTemplate(self.template_gos_test)
             doc.render(context)
-            file_path = os.path.join(temp_dir, create_safe_filename(fio, 'тест', i))
+            file_path = os.path.join(temp_dir, create_safe_filename(fio, 'ФИЭБ', i))
             doc.save(file_path)
             generated_files.append(file_path)
         for i, student in enumerate(exam_students, start=4):
@@ -152,7 +151,7 @@ class DocumentGenerator:
             }
             doc = DocxTemplate(self.template_gos_exam)
             doc.render(context)
-            file_path = os.path.join(temp_dir, create_safe_filename(fio, 'экзамен', i))
+            file_path = os.path.join(temp_dir, create_safe_filename(fio, 'Экзамен', i))
             doc.save(file_path)
             generated_files.append(file_path)
         return generated_files

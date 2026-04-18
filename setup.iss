@@ -1,6 +1,6 @@
 [Setup]
 AppName=Secretary assistant
-AppVersion=2.0
+AppVersion=3.0
 DefaultDirName={autopf}\Secretary assistant
 DefaultGroupName=Secretary assistant
 OutputDir=InstallerOutput
