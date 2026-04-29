@@ -35,10 +35,6 @@ class CTkEntryWithMenu(ctk.CTkEntry):
         kwargs.setdefault('font', ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY))
         super().__init__(*args, **kwargs)
         self.bind("<Button-3>", self._show_menu)
-        self.bind("<Control-c>", lambda e: self._copy_event())
-        self.bind("<Control-v>", lambda e: self._paste_event())
-        self.bind("<Control-x>", lambda e: self._cut_event())
-        self.bind("<Control-a>", lambda e: self._select_all_event())
 
     def _show_menu(self, event):
         menu = Menu(self, tearoff=0)
@@ -60,22 +56,13 @@ class CTkEntryWithMenu(ctk.CTkEntry):
     def _paste_event(self):
         try:
             text = self.clipboard_get()
+            try:
+                self.delete("sel.first", "sel.last")
+            except:
+                pass
             self.insert(self.index("insert"), text)
         except:
             pass
-
-    def _cut_event(self):
-        try:
-            selection = self.selection_get()
-            self.clipboard_clear()
-            self.clipboard_append(selection)
-            self.delete("sel.first", "sel.last")
-        except:
-            pass
-
-    def _select_all_event(self):
-        self.select_range(0, 'end')
-        self.icursor('end')
 
 class CTkTextboxWithMenu(ctk.CTkTextbox):
     def __init__(self, *args, **kwargs):
@@ -83,10 +70,6 @@ class CTkTextboxWithMenu(ctk.CTkTextbox):
         kwargs.setdefault('font', ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY))
         super().__init__(*args, **kwargs)
         self.bind("<Button-3>", self._show_menu)
-        self.bind("<Control-c>", lambda e: self._copy_event())
-        self.bind("<Control-v>", lambda e: self._paste_event())
-        self.bind("<Control-x>", lambda e: self._cut_event())
-        self.bind("<Control-a>", lambda e: self._select_all_event())
 
     def _show_menu(self, event):
         menu = Menu(self, tearoff=0)
@@ -108,21 +91,13 @@ class CTkTextboxWithMenu(ctk.CTkTextbox):
     def _paste_event(self):
         try:
             text = self.clipboard_get()
+            try:
+                self.delete("sel.first", "sel.last")
+            except:
+                pass
             self.insert("insert", text)
         except:
             pass
-
-    def _cut_event(self):
-        try:
-            selection = self.get("sel.first", "sel.last")
-            self.clipboard_clear()
-            self.clipboard_append(selection)
-            self.delete("sel.first", "sel.last")
-        except:
-            pass
-
-    def _select_all_event(self):
-        self.tag_add("sel", "1.0", "end")
 
 class ModernCard(ctk.CTkFrame):
     def __init__(self, parent, title=None, **kwargs):
@@ -539,7 +514,7 @@ class CommonDataDialog(Toplevel):
         ctk.CTkLabel(header, text="Эти данные будут автоматически подставляться для всех студентов", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY).pack(anchor="w", pady=(4, 0))
         
         self.fields = {}
-        gos_card = ModernCard(main_frame, title="🎯 Государственный экзамен (общие данные для ФИЭБ и Экзамена)")
+        gos_card = ModernCard(main_frame, title="📖 Государственный экзамен (общие данные для ФИЭБ и Экзамена)")
         gos_card.pack(fill="x", pady=10)
         gos_fields = [
             ("Направление подготовки", "gos_direction"),
@@ -687,9 +662,9 @@ class GECAssistantApp(ctk.CTk):
         ctk.CTkLabel(logo_frame, text="Цифровой помощник", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=11), text_color=DesignConfig.TEXT_SECONDARY).pack(pady=(4, 0))
         nav_buttons = [
             ("📋 Общие данные", "commission", self._show_commission),
-            ("🎯 Госэкзамен", "gos", self._show_gos),
+            ("📖 Госэкзамен", "gos", self._show_gos),
             ("📄 ВКР", "vkr", self._show_vkr),
-            ("⚙️ Генерация", "generate", self._show_generate)
+            ("✨  Генерация", "generate", self._show_generate)
         ]
         for text, section_id, command in nav_buttons:
             btn = ctk.CTkButton(sidebar, text=text, command=command, anchor="w", height=50, corner_radius=DesignConfig.CORNER_RADIUS, fg_color="transparent", hover_color=DesignConfig.CARD_HOVER, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=17))
@@ -726,13 +701,13 @@ class GECAssistantApp(ctk.CTk):
 
     def _show_gos(self):
         self.current_section = "gos"
-        self.section_title.configure(text="🎯 Государственный экзамен")
+        self.section_title.configure(text="📖 Государственный экзамен")
         self._create_gos_content()
         self._update_nav_buttons()
 
     def _show_generate(self):
         self.current_section = "generate"
-        self.section_title.configure(text="⚙️ Генерация документов")
+        self.section_title.configure(text="✨ Генерация документов")
         self._create_generate_content()
         self._update_nav_buttons()
 
@@ -873,7 +848,7 @@ class GECAssistantApp(ctk.CTk):
         self.gen_vkr = ctk.BooleanVar(value=False)
         self.gen_gos = ctk.BooleanVar(value=False)
         for text, var, desc in [
-            ("🎯 Протоколы Госэкзамена", self.gen_gos, "Сгенерировать протоколы для государственного экзамена (ФИЭБ/Экзамен)"),
+            ("📖 Протоколы Госэкзамена", self.gen_gos, "Сгенерировать протоколы для государственного экзамена (ФИЭБ/Экзамен)"),
             ("📄 Протоколы ВКР", self.gen_vkr, "Сгенерировать протоколы для выпускных квалификационных работ")
         ]:
             item = ctk.CTkFrame(options_card, fg_color="transparent")
@@ -893,7 +868,7 @@ class GECAssistantApp(ctk.CTk):
             return
         for widget in self.vkr_table_frame.winfo_children():
             widget.destroy()
-        headers = ["№", "ФИО", "Тема", "Руководитель", "Оценка", ""]
+        headers = ["№", "ФИО", "Руководитель", "Тема", "Оценка", ""]
         for col, header in enumerate(headers):
             ctk.CTkLabel(self.vkr_table_frame, text=header, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, weight="bold", size=16), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=col, padx=12, pady=12, sticky="w")
         students = self.db.get_all_students('ВКР')
@@ -902,8 +877,8 @@ class GECAssistantApp(ctk.CTk):
             row = i
             ctk.CTkLabel(self.vkr_table_frame, text=str(row), text_color=DesignConfig.TEXT_SECONDARY, font=ctk.CTkFont(size=16)).grid(row=row, column=0, padx=12, pady=8)
             ctk.CTkLabel(self.vkr_table_frame, text=(student.get('fio') or '')[:35], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=1, padx=12, pady=8)
-            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('theme') or '')[:30], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=2, padx=12, pady=8)
-            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('leader') or '')[:25], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
+            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('leader') or '')[:25], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=2, padx=12, pady=8)
+            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('theme') or '')[:100], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
             ctk.CTkLabel(self.vkr_table_frame, text=student.get('point') or '', text_color=DesignConfig.SUCCESS, font=ctk.CTkFont(size=16)).grid(row=row, column=4, padx=12, pady=8)
             delete_btn = ctk.CTkButton(self.vkr_table_frame, text="🗑️", width=36, height=36, fg_color=DesignConfig.DANGER, hover_color="#b91c1c", corner_radius=8, command=lambda s=student: self._delete_vkr_student(s))
             delete_btn.grid(row=row, column=5, padx=12, pady=8)
