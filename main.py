@@ -127,14 +127,14 @@ class VKRStudentDialog(Toplevel):
         self.is_edit = student_data is not None
         title = "✏️ Редактировать студента ВКР" if self.is_edit else "➕ Добавить студента ВКР"
         self.title(title)
-        self.geometry("900x700")
-        self.minsize(800, 600)
+        self.geometry("1200x850")
+        self.minsize(900, 700)
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
-        x = (self.winfo_screenwidth() - 900) // 2
-        y = (self.winfo_screenheight() - 700) // 2
-        self.geometry(f"900x700+{x}+{y}")
+        x = (self.winfo_screenwidth() - 1200) // 2
+        y = (self.winfo_screenheight() - 850) // 2
+        self.geometry(f"1200x850+{x}+{y}")
         ctk.set_appearance_mode("light")
         
         self.property_texts = {
@@ -145,6 +145,11 @@ class VKRStudentDialog(Toplevel):
         
         self._create_widgets()
         
+        # Создаем скрытое поле для протокола, чтобы логика работала, но его не было видно
+        hidden_protocol_entry = CTkEntryWithMenu(self.main_frame, width=1) 
+        hidden_protocol_entry.pack_forget() 
+        self.fields['protocol'] = hidden_protocol_entry
+        
         if self.is_edit and student_data:
             self._fill_data(student_data)
         else:
@@ -154,28 +159,22 @@ class VKRStudentDialog(Toplevel):
                 if key in self.fields:
                     self.fields[key].insert(0, "–")
              
-             # Автозаполнение для поля "Отметить, что" (tom)
-            if 'tom' in self.fields:
-                self.fields['tom'].delete("1.0", "end")
-                self.fields['tom'].insert("1.0", "обучающийся готов к решению профессиональных задач, недостатков в теоретической и практической подготовке обучающегося не выявлено")
-
     def _create_widgets(self):
-        main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        main_frame.pack(fill="both", expand=True, padx=24, pady=24)
-        header = ctk.CTkFrame(main_frame, fg_color="transparent")
+        self.main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.main_frame.pack(fill="both", expand=True, padx=24, pady=24)    
+        header = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
         ctk.CTkLabel(header, text="Данные студента для ВКР", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
         
         self.fields = {}
         field_config = [
-            ("ФИО студента *", "fio", 1), ("Протокол №", "protocol", 2),
-            ("Тема дипломной работы", "theme", 4), ("Научный руководитель", "leader", 5),
+            ("ФИО студента *", "fio", 1), ("Тема дипломной работы", "theme", 4), ("Научный руководитель", "leader", 5),
             ("Должность руководителя", "post", 8), ("При консультации", "con", 9),
             ("Кол-во страниц", "pages", 11), ("Чертежи", "con_1", 12),
             ("Иллюстрационный материал", "con_2", 13), ("Отзыв руководителя", "review", 14),
             ("Время сообщения (мин)", "time", 15), ("Заданные вопросы", "questions", 16),
             ("Характеристика ответов", "property", 17), ("Оценка ", "point", 18),
-            ("Выдать диплом", "diplom", 20), ("Отметить, что", "tom", 21),
+            ("Выдать диплом", "diplom", 20),
         ]
         VKR_FIELD_SIZES = {
             "questions": {"width": 480, "height": 300},  
@@ -183,7 +182,7 @@ class VKRStudentDialog(Toplevel):
         }
 
         for label_text, key, row in field_config:
-            row_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+            row_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
             row_frame.pack(fill="x", pady=8)
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
             
@@ -240,7 +239,7 @@ class VKRStudentDialog(Toplevel):
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
 
-        btn_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        btn_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
         ModernButton(btn_frame, text="💾 Сохранить", command=self._save, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
         ctk.CTkButton(btn_frame, text="❌ Отмена", command=self.destroy, fg_color="#e5e7eb", hover_color="#d1d5db", text_color=DesignConfig.TEXT_PRIMARY, width=150, height=35, corner_radius=DesignConfig.CORNER_RADIUS, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY, weight="bold")).pack(side="left", padx=8)
@@ -315,15 +314,21 @@ class GosStudentDialog(Toplevel):
         edit_title = "✏️ Редактировать" if self.is_edit else "➕ Добавить"
         self.title(f"{edit_title} студента ({display_type})")
         
-        self.geometry("900x700")
-        self.minsize(800, 600)
+        if gos_type == "тест":
+            win_width, win_height = 700, 280  
+            self.minsize(1000, 350)
+        else:
+            win_width, win_height = 900, 700  
+            self.minsize(1200, 800)
+        
+        self.geometry(f"{win_width}x{win_height}")
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
         
-        x = (self.winfo_screenwidth() - 900) // 2
-        y = (self.winfo_screenheight() - 700) // 2
-        self.geometry(f"900x700+{x}+{y}")
+        x = (self.winfo_screenwidth() - win_width) // 2
+        y = (self.winfo_screenheight() - win_height) // 2
+        self.geometry(f"{win_width}x{win_height}+{x}+{y}")
         
         ctk.set_appearance_mode("light")
         
@@ -346,18 +351,17 @@ class GosStudentDialog(Toplevel):
             protocol_value = f"{next_num}-1"
             
             if 'protocol' in self.fields:
-                self.fields['protocol'].delete(0, 'end')
-                self.fields['protocol'].insert(0, protocol_value)
-                
-            if self.gos_type == "тест" and 'property' in self.fields:
-                auto_text = "В качестве результатов ГЭ были зачтены результаты полученные обучающимся при прохождении тестирования федерального интернет-экзамена для выпускника бакалавриата"
-                if isinstance(self.fields['property'], CTkTextboxWithMenu):
-                    self.fields['property'].delete("1.0", "end")
-                    self.fields['property'].insert("1.0", auto_text)
-
+                    self.fields['protocol'].delete(0, 'end')
+                    self.fields['protocol'].insert(0, protocol_value)
+                          
     def _create_widgets(self):
-        main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        main_frame.pack(fill="both", expand=True, padx=24, pady=24)
+        if self.gos_type == "тест":
+            main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        else:
+            main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        
+        pady_val = 10 if self.gos_type == "тест" else 24
+        main_frame.pack(fill="both", expand=True, padx=24, pady=pady_val)
         
         header = ctk.CTkFrame(main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
@@ -365,12 +369,20 @@ class GosStudentDialog(Toplevel):
         ctk.CTkLabel(header, text=f"Данные студента для {inner_type_text}", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
         
         self.fields = {}
-        common_fields = [
+        
+        input_width = 480 if self.gos_type == "тест" else 480
+        
+        if self.gos_type == "тест":
+            common_fields = [
             ("ФИО студента *", "fio", 1),
-            ("Протокол №", "protocol", 2),
-            ("Характеристика ответов", "property", 7),
             ("Оценка ", "mark", 8),
         ]
+        else:
+            common_fields = [
+            ("ФИО студента *", "fio", 1),
+            ("Характеристика ответов", "property", 7),
+            ("Оценка ", "mark", 8),
+    ] 
         
         for label_text, key, row in common_fields:
             row_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -378,41 +390,39 @@ class GosStudentDialog(Toplevel):
             ctk.CTkLabel(row_frame, text=label_text, width=320, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_PRIMARY).grid(row=0, column=0, padx=(0, 16), sticky="w")
             
             if key == 'property':
-                if self.gos_type == "тест":
-                    text_box = CTkTextboxWithMenu(row_frame, width=480, height=110)
-                else:
-                    text_box = CTkTextboxWithMenu(row_frame, width=480, height=250)
-                
+                text_box = CTkTextboxWithMenu(row_frame, width=input_width, height=250)
                 text_box.grid(row=0, column=1, sticky="w")
                 self.fields[key] = text_box
                 
-                if self.gos_type == "экзамен":
-                    combo = ctk.CTkComboBox(
-                        row_frame, width=170,
-                        values=["Удовлетворительно", "Хорошо", "Отлично"],
-                        font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
-                        command=self._on_property_select
-                    )
-                    combo.set("")
-                    combo.grid(row=0, column=2, padx=(10, 0), sticky="e")
-                    self.fields[f'{key}_combo'] = combo
-                
+                combo = ctk.CTkComboBox(
+                    row_frame, width=170,
+                    values=["Удовлетворительно", "Хорошо", "Отлично"],
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
+                    command=self._on_property_select
+                )
+                combo.set("")
+                combo.grid(row=0, column=2, padx=(10, 0), sticky="e")
+                self.fields[f'{key}_combo'] = combo
                 continue 
                 
             elif key == 'mark':
                 entry = ctk.CTkComboBox(
-                    row_frame, width=480,
+                    row_frame, width=input_width,
                     values=["61 баллов (удовлетворительно)", "76 баллов (хорошо)", "91 баллов (отлично)"],
                     font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),
                     dropdown_font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY)
                 )
                 entry.set("")
             else:
-                entry = CTkEntryWithMenu(row_frame, width=480)
+                entry = CTkEntryWithMenu(row_frame, width=input_width)
             
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
-
+            
+            protocol_entry = CTkEntryWithMenu(main_frame, width=1)
+            protocol_entry.pack_forget()  
+            self.fields['protocol'] = protocol_entry
+            
         EXAM_FIELD_SIZES = {
             "ticket":        {"width": 130, "height": 35},
             "questions":     {"width": 580, "height": 300},
@@ -470,12 +480,6 @@ class GosStudentDialog(Toplevel):
             else:
                 result[key] = widget.get().strip()
         
-        # Страховка для ФИЭБ. Если по какой-то причине поле пустое или совпадает с протоколом -> исправляем
-        if self.gos_type == "тест":
-            correct_text = "В качестве результатов ГЭ были зачтены результаты полученные обучающимся при прохождении тестирования федерального интернет-экзамена для выпускника бакалавриата"
-            if not result.get('property') or result.get('property') == result.get('protocol'):
-                result['property'] = correct_text
-
         required = ['fio']
         for field in required:
             if not result.get(field):
@@ -493,14 +497,14 @@ class CommonDataDialog(Toplevel):
         super().__init__(parent)
         self.callback = callback
         self.title("📋 Общие данные")
-        self.geometry("1000x900")
-        self.minsize(900, 800)
+        self.geometry("1100x900")
+        self.minsize(1000, 800)
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
-        x = (self.winfo_screenwidth() - 1000) // 2
+        x = (self.winfo_screenwidth() - 1100) // 2
         y = (self.winfo_screenheight() - 900) // 2
-        self.geometry(f"1000x900+{x}+{y}")
+        self.geometry(f"1100x900+{x}+{y}")
         ctk.set_appearance_mode("light")
         self._create_widgets()
         self._load_data()
@@ -692,24 +696,36 @@ class GECAssistantApp(ctk.CTk):
         self._create_commission_content()
         self._update_nav_buttons()
         self.after(100, self._load_commission)
+        
+        if hasattr(self.section_content, '_scrollbar'):
+            self.section_content._scrollbar.grid()
 
     def _show_vkr(self):
         self.current_section = "vkr"
         self.section_title.configure(text="📄 Выпускные квалификационные работы")
         self._create_vkr_content()
         self._update_nav_buttons()
+        
+        if hasattr(self.section_content, '_scrollbar'):
+            self.section_content._scrollbar.grid()
 
     def _show_gos(self):
         self.current_section = "gos"
         self.section_title.configure(text="📖 Государственный экзамен")
         self._create_gos_content()
         self._update_nav_buttons()
+        
+        if hasattr(self.section_content, '_scrollbar'):
+            self.section_content._scrollbar.grid()
 
     def _show_generate(self):
         self.current_section = "generate"
         self.section_title.configure(text="✨ Генерация документов")
         self._create_generate_content()
         self._update_nav_buttons()
+        
+        if hasattr(self.section_content, '_scrollbar'):
+            self.section_content._scrollbar.grid_remove()
 
     def _create_commission_content(self):
         for widget in self.section_content.winfo_children():
@@ -904,7 +920,7 @@ class GECAssistantApp(ctk.CTk):
             s['_type'] = 'экзамен'
             all_students.append(s)
             
-        # Сортировка по времени создания (ISO-формат корректно сортируется строково)
+        # Сортировка по времени создания 
         all_students.sort(key=lambda x: x.get('created_at') or '1900-01-01T00:00:00')
     
         self.gos_count_label.configure(text=f"Студентов: {len(all_students)}")

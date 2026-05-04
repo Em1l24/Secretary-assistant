@@ -76,7 +76,7 @@ class DocumentGenerator:
                 'pages': student.get('pages'), 'con_1': student.get('con_1'), 'con_2': student.get('con_2'),
                 'review': student.get('review'), 'time': student.get('time'), 'questions_1': student.get('questions'),
                 'property_2': student.get('property'), 'point': student.get('point'), 'initials_acc': to_dative(fio),
-                'quali': student.get('quali') or common_vkr.get('quali'), 'diplom': student.get('diplom'), 'tom': student.get('tom'),
+                'quali': student.get('quali') or common_vkr.get('quali'), 'diplom': student.get('diplom'),
                 'chairman_2': chairman_reversed
             }
             doc = DocxTemplate(self.template_vkr)
@@ -120,7 +120,7 @@ class DocumentGenerator:
                 'secretary_1': secretary_reversed, 'secretary_2': secretary_reversed, 'secretary_3': commission.get('secretary'),
                 'dategek': student.get('dategek') or common_gos.get('dategek'),
                 'group': student.get('group') or common_gos.get('group'),
-                'initials_gen': to_accusative(fio), 'property': student.get('property'),
+                'initials_gen': to_accusative(fio),
                 'initials': normalize_fio(fio), 'mark': student.get('mark'), 'chairman_1': chairman_reversed
             }
             doc = DocxTemplate(self.template_gos_test)

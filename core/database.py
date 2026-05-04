@@ -87,7 +87,7 @@ class Database:
             print("Excel файл создан")
     
     def _create_headers(self, wb):
-        vkr_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Тема дипломной работы', 'Научный руководитель', 'Дата защиты', 'Состав ГЭК утвержден приказом от', 'Должность, место работы дипломного руководителя', 'При консультации', 'Обучающийся допущен до защиты ВКР приказом от', 'Кол-во страниц', 'Чертежи', 'Иллюстрационный материал', 'Отзыв руководителя', 'Время сообщения ВКР', 'Заданные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'Квалификация', 'Выдать диплом', 'Отметить, что']
+        vkr_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Тема дипломной работы', 'Научный руководитель', 'Дата защиты', 'Состав ГЭК утвержден приказом от', 'Должность, место работы дипломного руководителя', 'При консультации', 'Обучающийся допущен до защиты ВКР приказом от', 'Кол-во страниц', 'Чертежи', 'Иллюстрационный материал', 'Отзыв руководителя', 'Время сообщения ВКР', 'Заданные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'Квалификация', 'Выдать диплом']
         test_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', 'Оценка', 'Характеристика ответов обучающегося', 'created_at']
         exam_headers = ['ФИО', 'Протокол №', 'Направление подготовки', 'Группа', 'Дата экзамена', 'Состав ГЭК утвержден приказом от', '№ вытянутого билета', 'Дата утверждения билетов', 'Вопросы билета', 'Дополнительные вопросы', 'Характеристика ответов обучающегося', 'Оценка', 'created_at']
         commission_headers = ['ГЭК ТИУ', 'ГЭК ТИУ']
@@ -285,9 +285,9 @@ class Database:
     
     def _fill_student_row(self, sheet, sheet_name: str, row: int, student_data: Dict[str, Any]):
         if sheet_name == 'ВКР':
-            mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('theme', 4), ('leader', 5), ('date', 6), ('dategek', 7), ('post', 8), ('con', 9), ('order', 10), ('pages', 11), ('con_1', 12), ('con_2', 13), ('review', 14), ('time', 15), ('questions', 16), ('property', 17), ('point', 18), ('quali', 19), ('diplom', 20), ('tom', 21)]
+            mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('theme', 4), ('leader', 5), ('date', 6), ('dategek', 7), ('post', 8), ('con', 9), ('order', 10), ('pages', 11), ('con_1', 12), ('con_2', 13), ('review', 14), ('time', 15), ('questions', 16), ('property', 17), ('point', 18), ('quali', 19), ('diplom', 20)]
         elif sheet_name == 'тест':
-            mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('group', 4), ('date', 5), ('dategek', 6), ('mark', 7), ('property', 8)]
+            mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('group', 4), ('date', 5), ('dategek', 6), ('mark', 7)]
         elif sheet_name == 'экзамен':
             mapping = [('fio', 1), ('protocol', 2), ('direction', 3), ('group', 4), ('date', 5), ('dategek', 6), ('ticket', 7), ('state_date', 8), ('questions', 9), ('add_questions', 10), ('property', 11), ('mark', 12)]
         else:
@@ -322,10 +322,10 @@ class Database:
     
     def _read_student_row(self, sheet, sheet_name: str, row: int) -> Dict[str, Any]:
         if sheet_name == 'ВКР':
-            return {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'theme': sheet.cell(row=row, column=4).value, 'leader': sheet.cell(row=row, column=5).value, 'date': sheet.cell(row=row, column=6).value, 'dategek': sheet.cell(row=row, column=7).value, 'post': sheet.cell(row=row, column=8).value, 'con': sheet.cell(row=row, column=9).value, 'order': sheet.cell(row=row, column=10).value, 'pages': sheet.cell(row=row, column=11).value, 'con_1': sheet.cell(row=row, column=12).value, 'con_2': sheet.cell(row=row, column=13).value, 'review': sheet.cell(row=row, column=14).value, 'time': sheet.cell(row=row, column=15).value, 'questions': sheet.cell(row=row, column=16).value, 'property': sheet.cell(row=row, column=17).value, 'point': sheet.cell(row=row, column=18).value, 'quali': sheet.cell(row=row, column=19).value, 'diplom': sheet.cell(row=row, column=20).value, 'tom': sheet.cell(row=row, column=21).value}
+            return {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'theme': sheet.cell(row=row, column=4).value, 'leader': sheet.cell(row=row, column=5).value, 'date': sheet.cell(row=row, column=6).value, 'dategek': sheet.cell(row=row, column=7).value, 'post': sheet.cell(row=row, column=8).value, 'con': sheet.cell(row=row, column=9).value, 'order': sheet.cell(row=row, column=10).value, 'pages': sheet.cell(row=row, column=11).value, 'con_1': sheet.cell(row=row, column=12).value, 'con_2': sheet.cell(row=row, column=13).value, 'review': sheet.cell(row=row, column=14).value, 'time': sheet.cell(row=row, column=15).value, 'questions': sheet.cell(row=row, column=16).value, 'property': sheet.cell(row=row, column=17).value, 'point': sheet.cell(row=row, column=18).value, 'quali': sheet.cell(row=row, column=19).value, 'diplom': sheet.cell(row=row, column=20).value}
         elif sheet_name == 'тест':
-            student = {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'mark': sheet.cell(row=row, column=7).value, 'property': sheet.cell(row=row, column=8).value}
-            student['created_at'] = sheet.cell(row=row, column=9).value
+            student = {'fio': sheet.cell(row=row, column=1).value, 'protocol': sheet.cell(row=row, column=2).value, 'direction': sheet.cell(row=row, column=3).value, 'group': sheet.cell(row=row, column=4).value, 'date': sheet.cell(row=row, column=5).value, 'dategek': sheet.cell(row=row, column=6).value, 'mark': sheet.cell(row=row, column=7).value}
+            student['created_at'] = sheet.cell(row=row, column=8).value
             return student
             
         elif sheet_name == 'экзамен':
