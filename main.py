@@ -2,9 +2,58 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, Menu
 import os
 import sys
+import tkinter as tk
 from datetime import datetime
 from core.database import Database
 from core.generator import DocumentGenerator
+
+class Tooltip:
+    def __init__(self, widget, text, delay=300):
+        self.widget = widget
+        self.text = text
+        self.delay = delay
+        self.tipwindow = None
+        self._after_id = None
+        
+        self.widget.bind("<Enter>", self._on_enter)
+        self.widget.bind("<Leave>", self._on_leave)
+
+    def _on_enter(self, event=None):
+        self._after_id = self.widget.after(self.delay, self._show)
+
+    def _on_leave(self, event=None):
+        if self._after_id:
+            self.widget.after_cancel(self._after_id)
+            self._after_id = None
+        self._hide()
+
+    def _show(self):
+        if self.tipwindow or not self.text:
+            return
+        
+        x = self.widget.winfo_rootx() + self.widget.winfo_width() + 15
+        y = self.widget.winfo_rooty() - 10
+        
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.attributes("-topmost", True)
+        
+        tk.Label(tw, text=self.text, justify='left', 
+                 background="#b0c9f5", foreground="#31373d", 
+                 font=("Segoe UI", 12), wraplength=300, padx=10, pady=6).pack()
+                 
+        tw.wm_geometry(f"+{x}+{y}")
+        tw.update_idletasks()
+        
+        w, h = tw.winfo_width(), tw.winfo_height()
+        sw, sh = tw.winfo_screenwidth(), tw.winfo_screenheight()
+        if x + w + 20 > sw: tw.wm_geometry(f"+{sw - w - 20}+{y}")
+        if y + h + 20 > sh: tw.wm_geometry(f"+{x}+{sh - h - 20}")
+
+    def _hide(self):
+        if self.tipwindow:
+            self.tipwindow.destroy()
+            self.tipwindow = None
 
 class DesignConfig:
     PRIMARY = "#2563eb"
@@ -238,6 +287,17 @@ class VKRStudentDialog(Toplevel):
             
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
+            
+            if key == 'leader':
+                info_icon = ctk.CTkLabel(
+                    row_frame, text="ℹ️",
+                    fg_color="transparent",
+                    text_color=DesignConfig.PRIMARY,
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20),
+                    cursor="hand2"
+                )
+                info_icon.grid(row=0, column=2, padx=(15, 10))
+                Tooltip(info_icon, "Введите ФИО в формате: Фамилия И.О. \nПример: Иванов И.П.")
 
         btn_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
@@ -641,6 +701,7 @@ class GECAssistantApp(ctk.CTk):
         self.title("🎓 Secretary assistant")
         self.geometry("1400x900")
         self.minsize(1400, 800)
+        self.after(100, lambda: self.state('zoomed'))
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
         self.db = Database()
@@ -701,6 +762,10 @@ class GECAssistantApp(ctk.CTk):
             self.section_content._scrollbar.grid()
 
     def _show_vkr(self):
+        try:
+            self.section_content._parent_canvas.yview_moveto(0)
+        except:
+            pass
         self.current_section = "vkr"
         self.section_title.configure(text="📄 Выпускные квалификационные работы")
         self._create_vkr_content()
@@ -740,9 +805,22 @@ class GECAssistantApp(ctk.CTk):
             row = ctk.CTkFrame(chairman_card, fg_color="transparent")
             row.pack(fill="x", pady=8, padx=16)
             ctk.CTkLabel(row, text=label_text, width=280, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=16)).pack(side="left")
+             
             entry = CTkEntryWithMenu(row, width=450)
             entry.pack(side="left")
             self.commission_fields[key] = entry
+            
+            if key == "chairman":
+                info_icon = ctk.CTkLabel(
+                row, text="ℹ️",
+                fg_color="transparent",
+                text_color=DesignConfig.PRIMARY,
+                font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20),
+                cursor="hand2"
+                )
+                info_icon.pack(side="left", padx=(15, 10))
+                Tooltip(info_icon, "Введите ФИО в формате: Фамилия И.О. \nПример: Иванов И.П. \nАналогично и для членов комиссии")
+                           
         members_card = ModernCard(self.section_content, title="👥 Члены комиссии")
         members_card.pack(fill="x", pady=10)
         for i in range(1, 5):
