@@ -1,6 +1,7 @@
 import openpyxl
 import os
 import sys
+import json
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
@@ -25,9 +26,30 @@ class Database:
             db_path = str(data_dir / "БД.xlsx")
         
         self.db_path = db_path
+        self.excel_cache_path = str(data_dir / "excel_students_cache.json")
+        self.excel_students = self._load_excel_cache()
         self.first_run_flag = str(Path(db_path).parent / ".first_run")
         self._check_first_run()
         self._ensure_db_exists()
+        
+    def _load_excel_cache(self):
+        try:
+            if os.path.exists(self.excel_cache_path):
+                with open(self.excel_cache_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except: pass
+        return {}
+
+    def save_excel_students(self, students_dict):
+        self.excel_students = students_dict
+        try:
+            with open(self.excel_cache_path, 'w', encoding='utf-8') as f:
+                json.dump(students_dict, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Ошибка сохранения кэша Excel: {e}")
+
+    def get_excel_students(self):
+        return self.excel_students
     
     def _check_first_run(self):
         try:

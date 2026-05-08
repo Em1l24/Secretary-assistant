@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, Menu
 import os
 import sys
+import openpyxl
 import tkinter as tk
 from datetime import datetime
 from core.database import Database
@@ -278,12 +279,17 @@ class VKRStudentDialog(Toplevel):
                 )
                 entry.set("")  
                 
-            elif key in ['questions', 'tom', 'theme']:
+            elif key in ['questions', 'theme']:
                 sizes = VKR_FIELD_SIZES.get(key, {"width": 480, "height": 70}) 
                 entry = CTkTextboxWithMenu(row_frame, width=sizes["width"], height=sizes["height"])
                 
+            elif key == 'fio':
+                fio_values = list(self.parent.db.get_excel_students().keys())
+                entry = ctk.CTkComboBox(row_frame, width=480, values=fio_values, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY),command=self._on_fio_select)
+                entry.set("")
             else:
                 entry = CTkEntryWithMenu(row_frame, width=480)
+            
             
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
@@ -310,6 +316,15 @@ class VKRStudentDialog(Toplevel):
             if text:
                self.fields['property'].delete("1.0", "end")
                self.fields['property'].insert("1.0", text)  
+               
+    def _on_fio_select(self, event=None):
+        fio = self.fields['fio'].get().strip()
+        excel_data = self.parent.db.get_excel_students()
+        if fio in excel_data and 'theme' in self.fields:
+            theme = excel_data[fio].get("topic", "")
+            if theme:
+                self.fields['theme'].delete("1.0", "end")
+                self.fields['theme'].insert("1.0", theme)
         
     def _auto_fill_protocol(self, sheet_name):
         try:
@@ -474,7 +489,9 @@ class GosStudentDialog(Toplevel):
                 )
                 entry.set("")
             else:
-                entry = CTkEntryWithMenu(row_frame, width=input_width)
+                fio_values = list(self.parent.db.get_excel_students().keys())
+                entry = ctk.CTkComboBox(row_frame, width=input_width, values=fio_values, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY))
+                entry.set("")
             
             entry.grid(row=0, column=1, sticky="w")
             self.fields[key] = entry
@@ -798,6 +815,7 @@ class GECAssistantApp(ctk.CTk):
         hint_card = ModernCard(self.section_content, title="💡 Подсказка")
         hint_card.pack(fill="x", pady=(0, 20))
         ctk.CTkLabel(hint_card, text="Заполните данные комиссии и общие данные один раз. Они будут автоматически использоваться во всех сгенерированных протоколах.", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY, wraplength=500).pack(pady=12, padx=16, anchor="w")
+        ModernButton(self.section_content, text="🗃️ Загрузить список студентов (Excel)", command=self._load_student_excel, color=DesignConfig.WARNING).pack(pady=10)
         ModernButton(self.section_content, text="📋 Заполнить общие данные (ФИЭБ, Экзамен, ВКР)", command=self._open_common_data, color=DesignConfig.PRIMARY).pack(pady=10)
         chairman_card = ModernCard(self.section_content, title="👤 Председатель ГЭК")
         chairman_card.pack(fill="x", pady=10)
@@ -848,6 +866,26 @@ class GECAssistantApp(ctk.CTk):
         ModernButton(btn_frame, text="💾 Сохранить данные комиссии", command=self._save_commission, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
         ModernButton(btn_frame, text="🗑️ Очистить данные комиссии", command=self._clear_commission_only, color=DesignConfig.DANGER).pack(side="left", padx=8)
 
+    def _load_student_excel(self):
+        filepath = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
+        if not filepath:
+            return
+        try:
+            wb = openpyxl.load_workbook(filepath, read_only=True, data_only=True)
+            ws = wb.active
+            students = {}
+            for row in ws.iter_rows(min_row=5, values_only=True):
+                fio = row[0]
+                if not fio or str(fio).strip() == "":
+                    break
+                topic = row[10] if len(row) > 10 else ""
+                students[str(fio).strip()] = {"topic": str(topic).strip() if topic else ""}
+            
+            self.db.save_excel_students(students)
+            messagebox.showinfo("Успешно", f"Загружено {len(students)} студентов.\nТеперь ФИО доступно в выпадающем списке, а темы ВКР подставляются автоматически.")
+        except Exception as e:
+            messagebox.showerror("Ошибка загрузки", f"Не удалось обработать файл:\n{e}")
+            
     def _open_common_data(self):
         dialog = CommonDataDialog(self, self._common_data_callback)
 
