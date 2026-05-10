@@ -173,7 +173,7 @@ class Database:
     def save_common_data_gos(self, common_data: Dict[str, Any], exam_state_date: str = None):
         wb = self._load_workbook()
         sheet = wb['комиссия']
-        for row in range(21, 34):
+        for row in range(22, 35):
             for col in [1, 2]:
                 sheet.cell(row=row, column=col).value = None
         fields_mapping = {
@@ -183,7 +183,7 @@ class Database:
             'dategek': 'Состав ГЭК утвержден приказом от'
         }
         for i, (key, label) in enumerate(fields_mapping.items()):
-            row = 21 + i
+            row = 22 + i
             value = common_data.get(key, '')
             if value:
                 sheet.cell(row=row, column=1, value=label)
@@ -199,7 +199,7 @@ class Database:
         data = {}
         fields = ['direction', 'group', 'date', 'dategek']
         for i, field in enumerate(fields):
-            value = sheet.cell(row=21 + i, column=2).value
+            value = sheet.cell(row=22 + i, column=2).value
             data[field] = value if value is not None else ''
         state_date = sheet.cell(row=26, column=2).value
         data['state_date'] = state_date if state_date is not None else ''

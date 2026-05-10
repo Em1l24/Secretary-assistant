@@ -44,8 +44,8 @@ class DocumentGenerator:
         common_vkr = self.db.get_common_data_vkr()
         book_data = students[0]
         book_context = {
-            'direction_2': book_data.get('direction') or common_vkr.get('direction'),
-            'date_2': book_data.get('date') or common_vkr.get('date'),
+            'direction_2': common_vkr.get('direction') or book_data.get('direction'),
+            'date_2': common_vkr.get('date') or book_data.get('date'),
             'status': commission.get('secretary_position'),
             'secretary_3': commission.get('secretary')
         }
@@ -61,8 +61,8 @@ class DocumentGenerator:
             position_4 = commission.get('member_4_position') if commission.get('member_4_position') else '–'
             context = {
                 'protocol_2': student.get('protocol'),
-                'direction_2': student.get('direction') or common_vkr.get('direction'),
-                'date_2': student.get('date') or common_vkr.get('date'),
+                'direction_2': common_vkr.get('direction') or student.get('direction'),
+                'date_2': common_vkr.get('date') or student.get('date'),
                 'initials_gene': to_genitive(fio), 'theme': student.get('theme'),
                 'chairman': commission.get('chairman'), 'position': commission.get('chairman_position'),
                 'member_1': commission.get('member_1', ''), 'position_1': commission.get('member_1_position', ''),
@@ -70,13 +70,13 @@ class DocumentGenerator:
                 'member_3': commission.get('member_3', ''), 'position_3': commission.get('member_3_position', ''),
                 'member_4': member_4, 'position_4': position_4,
                 'secretary_1': secretary_reversed, 'secretary_2': secretary_reversed, 'secretary_3': commission.get('secretary'),
-                'dategek_2': student.get('dategek') or common_vkr.get('dategek'),
+                'dategek_2': common_vkr.get('dategek') or student.get('dategek'),
                 'leader': leader_to_genitive(student.get('leader')) if student.get('leader') else "",
-                'post': student.get('post'), 'con': student.get('con'), 'order': student.get('order') or common_vkr.get('order'),
+                'post': student.get('post'), 'con': student.get('con'), 'order': common_vkr.get('order') or student.get('order'),
                 'pages': student.get('pages'), 'con_1': student.get('con_1'), 'con_2': student.get('con_2'),
                 'review': student.get('review'), 'time': student.get('time'), 'questions_1': student.get('questions'),
                 'property_2': student.get('property'), 'point': student.get('point'), 'initials_acc': to_dative(fio),
-                'quali': student.get('quali') or common_vkr.get('quali'), 'diplom': student.get('diplom'),
+                'quali': common_vkr.get('quali') or student.get('quali'), 'diplom': student.get('diplom'),
                 'chairman_2': chairman_reversed
             }
             doc = DocxTemplate(self.template_vkr)
@@ -94,8 +94,8 @@ class DocumentGenerator:
         if test_students or exam_students:
             book_data = exam_students[0] if exam_students else test_students[0]
             book_context = {
-                'direction_1': book_data.get('direction') or common_gos.get('direction'),
-                'date_1': book_data.get('date') or common_gos.get('date'),
+                'direction_1': common_gos.get('direction') or book_data.get('direction'),
+                'date_1': common_gos.get('date') or book_data.get('date'),
                 'secretary_1': secretary_reversed
             }
             book_doc = DocxTemplate(self.template_gos_book)
@@ -110,16 +110,16 @@ class DocumentGenerator:
             if not fio: continue
             context = {
                 'protocol': student.get('protocol'),
-                'direction': student.get('direction') or common_gos.get('direction'),
-                'date': student.get('date') or common_gos.get('date'),
+                'direction': common_gos.get('direction') or student.get('direction'),
+                'date': common_gos.get('date') or student.get('date'),
                 'chairman': commission.get('chairman'), 'position': commission.get('chairman_position'),
                 'member_1': commission.get('member_1', ''), 'position_1': commission.get('member_1_position', ''),
                 'member_2': commission.get('member_2', ''), 'position_2': commission.get('member_2_position', ''),
                 'member_3': commission.get('member_3', ''), 'position_3': commission.get('member_3_position', ''),
                 'member_4': member_4, 'position_4': position_4,
                 'secretary_1': secretary_reversed, 'secretary_2': secretary_reversed, 'secretary_3': commission.get('secretary'),
-                'dategek': student.get('dategek') or common_gos.get('dategek'),
-                'group': student.get('group') or common_gos.get('group'),
+                'dategek': common_gos.get('dategek') or student.get('dategek'),
+                'group': common_gos.get('group') or student.get('group'),
                 'initials_gen': to_accusative(fio),
                 'initials': normalize_fio(fio), 'mark': student.get('mark'), 'chairman_1': chairman_reversed
             }
@@ -133,18 +133,18 @@ class DocumentGenerator:
             if not fio: continue
             context = {
                 'protocol_1': student.get('protocol'),
-                'direction_1': student.get('direction') or common_gos.get('direction'),
-                'date_1': student.get('date') or common_gos.get('date'),
+                'direction_1': common_gos.get('direction') or student.get('direction'),
+                'date_1': common_gos.get('date') or student.get('date'),
                 'chairman': commission.get('chairman'), 'position': commission.get('chairman_position'),
                 'member_1': commission.get('member_1', ''), 'position_1': commission.get('member_1_position', ''),
                 'member_2': commission.get('member_2', ''), 'position_2': commission.get('member_2_position', ''),
                 'member_3': commission.get('member_3', ''), 'position_3': commission.get('member_3_position', ''),
                 'member_4': member_4, 'position_4': position_4,
                 'secretary_1': secretary_reversed, 'secretary_2': secretary_reversed, 'secretary_3': commission.get('secretary'),
-                'dategek_1': student.get('dategek') or common_gos.get('dategek'),
-                'group_1': student.get('group') or common_gos.get('group'),
+                'dategek_1': common_gos.get('dategek') or student.get('dategek'),
+                'group_1': common_gos.get('group') or student.get('group'),
                 'initials_gen_1': to_accusative(fio), 'ticket': student.get('ticket'),
-                'state_date': student.get('state_date') or common_gos.get('state_date'),
+                'state_date': common_gos.get('state_date') or student.get('state_date'),
                 'questions': student.get('questions'), 'add_questions': student.get('add_questions'),
                 'property_1': student.get('property'), 'initials_1': normalize_fio(fio),
                 'mark_1': student.get('mark'), 'chairman_1': chairman_reversed
