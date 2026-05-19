@@ -8,6 +8,8 @@ from datetime import datetime
 from core.database import Database
 from core.generator import DocumentGenerator
 
+APP_VERSION = "4.0" 
+
 class Tooltip:
     def __init__(self, widget, text, delay=300):
         self.widget = widget
@@ -177,20 +179,20 @@ class VKRStudentDialog(Toplevel):
         self.is_edit = student_data is not None
         title = "✏️ Редактировать студента ВКР" if self.is_edit else "➕ Добавить студента ВКР"
         self.title(title)
-        self.geometry("1200x850")
-        self.minsize(900, 700)
+        self.geometry("1400x800")
+        self.minsize(1200, 700)
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
-        x = (self.winfo_screenwidth() - 1200) // 2
-        y = (self.winfo_screenheight() - 850) // 2
-        self.geometry(f"1200x850+{x}+{y}")
+        x = (self.winfo_screenwidth() - 1400) // 2
+        y = (self.winfo_screenheight() - 800) // 2
+        self.geometry(f"1400x800+{x}+{y}")
         ctk.set_appearance_mode("light")
         
         self.property_texts = {
         "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
-        "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках.	\nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
-        "Отлично": "в ходе ответа выпускником продемонстрированы глубокие знания материала, получены исчерпывающие логически обоснованные ответы на все вопросы, сделаны содержательные выводы к каждому ответу. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены"
+        "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках.	\nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
+        "Отлично": "в ходе ответа выпускником продемонстрированы глубокие знания материала, получены исчерпывающие логически обоснованные ответы на все вопросы, сделаны содержательные выводы к каждому ответу. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены"
     }
         
         self._create_widgets()
@@ -304,6 +306,17 @@ class VKRStudentDialog(Toplevel):
                 )
                 info_icon.grid(row=0, column=2, padx=(15, 10))
                 Tooltip(info_icon, "Введите ФИО в формате: Фамилия И.О. \nПример: Иванов И.П.")
+                
+            if key == 'questions':
+                info_icon = ctk.CTkLabel(
+                    row_frame, text="ℹ️",
+                    fg_color="transparent",
+                    text_color=DesignConfig.PRIMARY,
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20),
+                    cursor="hand2"
+                )
+                info_icon.grid(row=0, column=2, padx=(15, 10))
+                Tooltip(info_icon, "Каждый вопрос расписывать с новой строки\nПример: 1. текст вопроса?\n                2. текст вопроса? и.т.д. ")
 
         btn_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
@@ -387,14 +400,14 @@ class GosStudentDialog(Toplevel):
         
         display_type = "📝 ФИЭБ" if gos_type == "тест" else "📚 Экзамен"
         edit_title = "✏️ Редактировать" if self.is_edit else "➕ Добавить"
-        self.title(f"{edit_title} студента ({display_type})")
+        self.title(f"{edit_title} студента {display_type}")
         
         if gos_type == "тест":
-            win_width, win_height = 700, 280  
-            self.minsize(1000, 350)
+            win_width, win_height = 900, 320  
+            self.minsize(1150, 350)
         else:
-            win_width, win_height = 900, 700  
-            self.minsize(1200, 800)
+            win_width, win_height = 1100, 800  
+            self.minsize(1450, 800)
         
         self.geometry(f"{win_width}x{win_height}")
         self.resizable(True, True)
@@ -408,8 +421,8 @@ class GosStudentDialog(Toplevel):
         ctk.set_appearance_mode("light")
         
         self.property_texts = {
-            "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
-            "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося недостатки в теоретической и практической подготовке не выявлены",
+            "Удовлетворительно": "в ходе ответа выпускником продемонстрированы достаточные знания материала, но ответы получены не на все вопросы, выводы по работе носят поверхностный характер. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
+            "Хорошо": "выпускник достаточно глубоко владеет теоретическим материалом, демонстрирует умение анализировать материал, но не все выводы достаточно аргументированы, в целом ответ последователен, обоснован, но допущены незначительные неточности в формулировках. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся готов к решению профессиональных задач. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены",
             "Отлично": "даны грамотные и аргументированные ответы на поставленные вопросы. \nМнение ГЭК о выявленном уровне подготовленности обучающегося к решению профессиональных задач: обучающийся продемонстрировал высокий уровень подготовки к решению профессиональных задач, продемонстрировано свободное владение учебным материалом, получены исчерпывающие ответы на все вопросы билета и дополнительные вопросы членов ГЭК. \nМнение ГЭК о выявленных недостатках в теоретической и практической подготовке обучающегося: недостатки в теоретической и практической подготовке не выявлены"
         }
         
@@ -517,7 +530,29 @@ class GosStudentDialog(Toplevel):
                 entry = CTkTextboxWithMenu(row_frame, width=sizes["width"], height=sizes["height"])
                 entry.grid(row=0, column=1, sticky="w")
                 self.fields[key] = entry
+                
+                if key == "questions":
+                    info_icon = ctk.CTkLabel(
+                    row_frame, text="ℹ️",
+                    fg_color="transparent",
+                    text_color=DesignConfig.PRIMARY,
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20),
+                    cursor="hand2"
+                    )
+                    info_icon.grid(row=0, column=2, padx=(15, 10))
+                    Tooltip(info_icon, "Введите вопросы из вытянутого билета\nКаждый вопрос расписывать с новой строки\nПример: 1. текст вопроса.\n                2. текст вопроса. и.т.д. ")
 
+                if key == "add_questions":
+                    info_icon = ctk.CTkLabel(
+                    row_frame, text="ℹ️",
+                    fg_color="transparent",
+                    text_color=DesignConfig.PRIMARY,
+                    font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=20),
+                    cursor="hand2"
+                    )
+                    info_icon.grid(row=0, column=2, padx=(15, 10))
+                    Tooltip(info_icon, "Каждый вопрос расписывать с новой строки\nПример: 1. текст вопроса.\n                2. текст вопроса? и.т.д. \nВ конце каждого вопроса ставим (.) или (?) ориентируйтесь по контексту вопросов")
+                    
         btn_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
         ModernButton(btn_frame, text="💾 Сохранить", command=self._save, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
@@ -574,14 +609,14 @@ class CommonDataDialog(Toplevel):
         super().__init__(parent)
         self.callback = callback
         self.title("📋 Общие данные")
-        self.geometry("1100x900")
-        self.minsize(1000, 800)
+        self.geometry("1300x850")
+        self.minsize(1200, 750)
         self.resizable(True, True)
         self.grab_set()
         self.update_idletasks()
-        x = (self.winfo_screenwidth() - 1100) // 2
-        y = (self.winfo_screenheight() - 900) // 2
-        self.geometry(f"1100x900+{x}+{y}")
+        x = (self.winfo_screenwidth() - 1300) // 2
+        y = (self.winfo_screenheight() - 850) // 2
+        self.geometry(f"1300x850+{x}+{y}")
         ctk.set_appearance_mode("light")
         self._create_widgets()
         self._load_data()
@@ -592,7 +627,7 @@ class CommonDataDialog(Toplevel):
         header = ctk.CTkFrame(main_frame, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
         ctk.CTkLabel(header, text="📋 Общие данные", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
-        ctk.CTkLabel(header, text="Эти данные будут автоматически подставляться для всех студентов", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY).pack(anchor="w", pady=(4, 0))
+        ctk.CTkLabel(header, text="Эти данные будут автоматически подставляться для всех студентов группы", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY).pack(anchor="w", pady=(4, 0))
         
         self.fields = {}
         gos_card = ModernCard(main_frame, title="📖 Государственный экзамен (общие данные для ФИЭБ и Экзамена)")
@@ -611,6 +646,15 @@ class CommonDataDialog(Toplevel):
             entry = CTkEntryWithMenu(row, width=450)
             entry.pack(side="left")
             self.fields[key] = entry
+            
+            if key == "gos_date":
+                info_icon = ctk.CTkLabel(
+            row, text="ℹ️", fg_color="transparent", 
+            text_color=DesignConfig.PRIMARY, font=ctk.CTkFont(size=18), cursor="hand2"
+        )
+        info_icon.pack(side="left", padx=(15, 0))
+        Tooltip(info_icon, "Укажите дату в нужном формате \nПример: 15 июня 2026")
+        
         exam_card = ModernCard(main_frame, title="📚 Только для экзамена")
         exam_card.pack(fill="x", pady=10)
         exam_fields = [("Дата утверждения билетов", "exam_state_date")]
@@ -649,6 +693,15 @@ class CommonDataDialog(Toplevel):
                 entry = CTkEntryWithMenu(row, width=450)
             entry.pack(side="left")
             self.fields[key] = entry
+            
+            if key == "vkr_date":
+                info_icon = ctk.CTkLabel(
+            row, text="ℹ️", fg_color="transparent", 
+            text_color=DesignConfig.PRIMARY, font=ctk.CTkFont(size=18), cursor="hand2"
+        )
+        info_icon.pack(side="left", padx=(15, 0))
+        Tooltip(info_icon, "Укажите дату в нужном формате \nПример: 05 июля 2026")
+        
         btn_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         btn_frame.pack(pady=30)
         ModernButton(btn_frame, text="💾 Сохранить", command=self._save, color=DesignConfig.SUCCESS).pack(side="left", padx=8)
@@ -731,6 +784,73 @@ class GECAssistantApp(ctk.CTk):
 
     def _load_startup_data(self):
         self._load_commission()
+        
+    def _show_help(self):
+        help_window = ctk.CTkToplevel(self)
+        help_window.title("❓ Руководство пользователя")
+        help_window.geometry("900x700")
+        help_window.resizable(True, True)
+
+        help_window.grab_set()
+        
+        header = ctk.CTkFrame(help_window, fg_color="transparent")
+        header.pack(fill="x", padx=24, pady=(24, 12))
+        ctk.CTkLabel(header, text="📘 Как пользоваться программой", 
+                 font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=24, weight="bold"),
+                 text_color=DesignConfig.TEXT_PRIMARY).pack(anchor="w")
+        
+        help_text = """
+🔹 ШАГ 1: Настройка состава комиссии
+Начните работу с вкладки «Общие данные».
+• В блоках «Председатель ГЭК», «Члены комиссии» и «Секретарь ГЭК» заполните ФИО и должности.
+• Поля со звёздочкой (*) обязательны для заполнения.
+• После ввода данных обязательно нажмите кнопку «💾 Сохранить данные комиссии».
+
+🔹 ШАГ 2: Загрузка списка студентов
+В этой же вкладке нажмите оранжевую кнопку «🗃️ Загрузить список студентов (Excel)».
+• Выберите файл Excel с приказом на допуск.
+• Программа автоматически считывает нужные данные.
+• После загрузки ФИО студентов, они будут доступны в выпадающих списках при добавлении.
+
+🔹 ШАГ 3: Заполнение общих данных группы
+Нажмите синюю кнопку «📋 Заполнить общие данные (ФИЭБ, Экзамен, ВКР)».
+• В открывшемся окне укажите: Направление подготовки, Группу, Даты экзаменов/защиты и номера приказов.
+• В разделе ВКР выберите квалификацию (например, «бакалавр» или «магистр»).
+• Нажмите «Сохранить». Эти данные автоматически подставятся во все генерируемые протоколы.
+
+🔹 ШАГ 4: Работа со студентами
+Перейдите во вкладки «Госэкзамен» или «ВКР» в меню слева.
+• Нажмите кнопку «➕ Добавить студента».
+• В поле «ФИО» выберите студента из списка (если вы загрузили Excel), если не загружали также предусмотрена возможность ручного добавления.
+• Для ВКР: Тема дипломной работы подставится автоматически при выборе студента из выпадающего списка.
+• Заполните остальные поля (оценки, вопросы, характеристики) и нажмите «Сохранить».
+Управление списком:
+• Редактирование: дважды кликните левой кнопкой мыши по строке студента в таблице.
+• Удаление: нажмите красную иконку корзины 🗑️ справа от строки.
+• Очистка: кнопка «🗑️ Очистить список» удаляет всех студентов из текущей вкладки.
+
+🔹 ШАГ 5: Генерация документов
+Перейдите во вкладку «✨ Генерация».
+• Отметьте галочками те типы документов, которые необходимо создать (например, Протоколы Госэкзамена, Протоколы ВКР).
+• Нажмите большую зеленую кнопку «🚀 Сгенерировать документы».
+• Дождитесь окончания процесса. Архив с готовыми протоколами автоматически откроется на Рабочем столе.
+
+💡 ПОЛЕЗНЫЕ СОВЕТЫ:
+Подсказки: Наведите курсор мыши на значок «ℹ️» рядом с любым полем ввода, чтобы прочитать требования к формату (например, как писать ФИО).
+Копирование и вставка: Если горячие клавиши не работают, нажмите правую кнопку мыши в любом текстовом поле — откроется меню с опциями «Копировать» и «Вставить».
+Автозаполнение характеристик: При выборе оценки (например, «Отлично») в выпадающем списке, текст характеристики ответов студента заполнится автоматически.
+Последовательность: Для избежания ошибок рекомендуется заполнять данные строго по порядку: Комиссия → Общие данные → Студенты → Генерация.
+"""
+        
+        text_box = ctk.CTkTextbox(help_window, 
+                              font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=18),
+                              wrap="word")
+        text_box.pack(fill="both", expand=True, padx=24, pady=(0, 24))
+        text_box.insert("1.0", help_text)
+        text_box.configure(state="disabled")  
+        
+        if hasattr(self.section_content, '_scrollbar'):
+            self.section_content._scrollbar.grid() 
 
     def _create_ui(self):
         main_container = ctk.CTkFrame(self, fg_color="transparent")
@@ -746,13 +866,21 @@ class GECAssistantApp(ctk.CTk):
             ("📋 Общие данные", "commission", self._show_commission),
             ("📖 Госэкзамен", "gos", self._show_gos),
             ("📄 ВКР", "vkr", self._show_vkr),
-            ("✨  Генерация", "generate", self._show_generate)
+            ("✨  Генерация", "generate", self._show_generate),
+            ("❓ Руководство", "help", self._show_help)
         ]
         for text, section_id, command in nav_buttons:
             btn = ctk.CTkButton(sidebar, text=text, command=command, anchor="w", height=50, corner_radius=DesignConfig.CORNER_RADIUS, fg_color="transparent", hover_color=DesignConfig.CARD_HOVER, text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=17))
             btn.pack(fill="x", padx=12, pady=4)
             self.nav_buttons[section_id] = btn
         self._update_nav_buttons()
+        version_label = ctk.CTkLabel(
+            sidebar, 
+            text=f"version {APP_VERSION}", 
+            font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
+            text_color=DesignConfig.TEXT_MUTED
+        )
+        version_label.pack(side="bottom", pady=20)
         self.content_frame = ctk.CTkFrame(main_container, corner_radius=DesignConfig.CORNER_RADIUS, fg_color=DesignConfig.CARD_BG)
         self.content_frame.pack(side="right", fill="both", expand=True)
         self.section_title = ctk.CTkLabel(self.content_frame, text="", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY)
@@ -814,9 +942,9 @@ class GECAssistantApp(ctk.CTk):
             widget.destroy()
         hint_card = ModernCard(self.section_content, title="💡 Подсказка")
         hint_card.pack(fill="x", pady=(0, 20))
-        ctk.CTkLabel(hint_card, text="Заполните данные комиссии и общие данные один раз. Они будут автоматически использоваться во всех сгенерированных протоколах.", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY, wraplength=500).pack(pady=12, padx=16, anchor="w")
-        ModernButton(self.section_content, text="🗃️ Загрузить список студентов (Excel)", command=self._load_student_excel, color=DesignConfig.WARNING).pack(pady=10)
+        ctk.CTkLabel(hint_card, text="Заполните данные комиссии и общие данные один раз для группы. Они будут автоматически использоваться во всех сгенерированных протоколах.", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_BODY), text_color=DesignConfig.TEXT_SECONDARY, wraplength=500).pack(pady=12, padx=16, anchor="w")
         ModernButton(self.section_content, text="📋 Заполнить общие данные (ФИЭБ, Экзамен, ВКР)", command=self._open_common_data, color=DesignConfig.PRIMARY).pack(pady=10)
+        ModernButton(self.section_content, text="🗃️ Загрузить список студентов (Excel)", command=self._load_student_excel, color=DesignConfig.WARNING).pack(pady=10)
         chairman_card = ModernCard(self.section_content, title="👤 Председатель ГЭК")
         chairman_card.pack(fill="x", pady=10)
         for label_text, key in [("ФИО *", "chairman"), ("Должность *", "chairman_position")]:
@@ -837,7 +965,7 @@ class GECAssistantApp(ctk.CTk):
                 cursor="hand2"
                 )
                 info_icon.pack(side="left", padx=(15, 10))
-                Tooltip(info_icon, "Введите ФИО в формате: Фамилия И.О. \nПример: Иванов И.П. \nАналогично и для членов комиссии")
+                Tooltip(info_icon, "Введите ФИО в формате: Фамилия И.О. \nПример: Иванов И.П. \nАналогично для членов комиссии и секретаря")
                            
         members_card = ModernCard(self.section_content, title="👥 Члены комиссии")
         members_card.pack(fill="x", pady=10)
@@ -1010,7 +1138,7 @@ class GECAssistantApp(ctk.CTk):
             ctk.CTkLabel(self.vkr_table_frame, text=str(row), text_color=DesignConfig.TEXT_SECONDARY, font=ctk.CTkFont(size=16)).grid(row=row, column=0, padx=12, pady=8)
             ctk.CTkLabel(self.vkr_table_frame, text=(student.get('fio') or '')[:35], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=1, padx=12, pady=8)
             ctk.CTkLabel(self.vkr_table_frame, text=(student.get('leader') or '')[:25], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=2, padx=12, pady=8)
-            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('theme') or '')[:100], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
+            ctk.CTkLabel(self.vkr_table_frame, text=(student.get('theme') or '')[:90], text_color=DesignConfig.TEXT_PRIMARY, font=ctk.CTkFont(size=16)).grid(row=row, column=3, padx=12, pady=8)
             ctk.CTkLabel(self.vkr_table_frame, text=student.get('point') or '', text_color=DesignConfig.SUCCESS, font=ctk.CTkFont(size=16)).grid(row=row, column=4, padx=12, pady=8)
             delete_btn = ctk.CTkButton(self.vkr_table_frame, text="🗑️", width=36, height=36, fg_color=DesignConfig.DANGER, hover_color="#b91c1c", corner_radius=8, command=lambda s=student: self._delete_vkr_student(s))
             delete_btn.grid(row=row, column=5, padx=12, pady=8)
