@@ -1,21 +1,34 @@
+
 [Setup]
-AppName=Secretary assistant
-AppVersion=4.0
-DefaultDirName={autopf}\Secretary assistant
-DefaultGroupName=Secretary assistant
-OutputDir=InstallerOutput
-OutputBaseFilename=Secretary assistant
-Compression=lzma
+AppName=Secretary Assistant
+AppVersion=4.0.0
+AppPublisher=Emil
+DefaultDirName={autopf}\Secretary Assistant
+DefaultGroupName=Secretary Assistant
+UninstallDisplayIcon={app}\main.exe
+OutputDir=.\installer_output
+OutputBaseFilename=Secretary Assistant Setup
+Compression=lzma2
 SolidCompression=yes
-PrivilegesRequired=admin
-UninstallDisplayIcon={app}\Secretary assistant.exe
+PrivilegesRequired=lowest
+SetupIconFile=icon.ico
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+
+[Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Files]
-Source: "dist\Secretary assistant.exe"; DestDir: "{app}"; Flags: ignoreversion
+; Копируем всё из папки Nuitka в папку установки
+Source: "build\main.dist\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
-Name: "{autodesktop}\Secretary assistant"; Filename: "{app}\Secretary assistant.exe"
-Name: "{group}\Secretary assistant"; Filename: "{app}\Secretary assistant.exe"
+; Ярлык в меню Пуск
+Name: "{group}\Secretary Assistant"; Filename: "{app}\main.exe"; IconFilename: "{app}\icon.ico"
+; Ярлык на рабочем столе
+Name: "{userdesktop}\Secretary Assistant"; Filename: "{app}\main.exe"; IconFilename: "{app}\icon.ico"
 
 [Run]
-Filename: "{app}\Secretary assistant.exe"; Description: "Запустить приложение"; Flags: nowait postinstall skipifsilent
+; Запуск программы после установки
+Filename: "{app}\main.exe"; Description: "{cm:LaunchProgram,Secretary Assistant}"; Flags: nowait postinstall skipifsilent

@@ -8,7 +8,6 @@ from datetime import datetime
 from core.database import Database
 from core.generator import DocumentGenerator
 
-APP_VERSION = "4.0" 
 
 class Tooltip:
     def __init__(self, widget, text, delay=300):
@@ -17,9 +16,9 @@ class Tooltip:
         self.delay = delay
         self.tipwindow = None
         self._after_id = None
-        
         self.widget.bind("<Enter>", self._on_enter)
         self.widget.bind("<Leave>", self._on_leave)
+        self.widget.bind("<ButtonPress>", lambda e: self._hide())  
 
     def _on_enter(self, event=None):
         self._after_id = self.widget.after(self.delay, self._show)
@@ -33,29 +32,38 @@ class Tooltip:
     def _show(self):
         if self.tipwindow or not self.text:
             return
-        
-        x = self.widget.winfo_rootx() + self.widget.winfo_width() + 15
-        y = self.widget.winfo_rooty() - 10
-        
-        self.tipwindow = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.attributes("-topmost", True)
-        
-        tk.Label(tw, text=self.text, justify='left', 
-                 background="#b0c9f5", foreground="#31373d", 
-                 font=("Segoe UI", 12), wraplength=300, padx=10, pady=6).pack()
-                 
-        tw.wm_geometry(f"+{x}+{y}")
-        tw.update_idletasks()
-        
-        w, h = tw.winfo_width(), tw.winfo_height()
-        sw, sh = tw.winfo_screenwidth(), tw.winfo_screenheight()
-        if x + w + 20 > sw: tw.wm_geometry(f"+{sw - w - 20}+{y}")
-        if y + h + 20 > sh: tw.wm_geometry(f"+{x}+{sh - h - 20}")
+        try:
+            
+            x = self.widget.winfo_pointerx() + 15
+            y = self.widget.winfo_pointery() + 15
+
+            self.tipwindow = tw = tk.Toplevel(self.widget)
+            tw.wm_overrideredirect(True)
+            tw.withdraw()  
+
+            tk.Label(tw, text=self.text, justify='left',
+                     background="#b0c9f5", foreground="#31373d",
+                     font=("Segoe UI", 12), wraplength=300, padx=10, pady=6).pack()
+
+            tw.update_idletasks()
+            w, h = tw.winfo_width(), tw.winfo_height()
+            sw, sh = tw.winfo_screenwidth(), tw.winfo_screenheight()
+
+            if x + w > sw: x = sw - w - 5
+            if y + h > sh: y = sh - h - 5
+
+            tw.wm_geometry(f"+{x}+{y}")
+            tw.lift()  
+            tw.deiconify()
+        except Exception as e:
+            try: print(f"[Tooltip] Ошибка отрисовки: {e}")
+            except: pass
+            self._hide()
 
     def _hide(self):
         if self.tipwindow:
-            self.tipwindow.destroy()
+            try: self.tipwindow.destroy()
+            except: pass
             self.tipwindow = None
 
 class DesignConfig:
@@ -768,7 +776,7 @@ class CommonDataDialog(Toplevel):
 class GECAssistantApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("🎓 Secretary assistant")
+        self.title("🎓 Secretary Assistant")
         self.geometry("1400x900")
         self.minsize(1400, 800)
         self.after(100, lambda: self.state('zoomed'))
@@ -806,27 +814,28 @@ class GECAssistantApp(ctk.CTk):
 • Поля со звёздочкой (*) обязательны для заполнения.
 • После ввода данных обязательно нажмите кнопку «💾 Сохранить данные комиссии».
 
-🔹 ШАГ 2: Загрузка списка студентов
-В этой же вкладке нажмите оранжевую кнопку «🗃️ Загрузить список студентов (Excel)».
-• Выберите файл Excel с приказом на допуск.
+🔹 ШАГ 2: Загрузка списка студентов (Если есть возможность)
+В этой же вкладке нажмите оранжевую кнопку «🗃️Загрузить список студентов (Excel)».
+• Выберите файл Excel с приказом на допуск (Секретарь экспортирует список из тандема в Excel формате).
 • Программа автоматически считывает нужные данные.
 • После загрузки ФИО студентов, они будут доступны в выпадающих списках при добавлении.
 
 🔹 ШАГ 3: Заполнение общих данных группы
 Нажмите синюю кнопку «📋 Заполнить общие данные (ФИЭБ, Экзамен, ВКР)».
 • В открывшемся окне укажите: Направление подготовки, Группу, Даты экзаменов/защиты и номера приказов.
-• В разделе ВКР выберите квалификацию (например, «бакалавр» или «магистр»).
+• В разделе ВКР выберите квалификацию в выпадающем списке (например, «бакалавр» или «магистр»).
 • Нажмите «Сохранить». Эти данные автоматически подставятся во все генерируемые протоколы.
 
 🔹 ШАГ 4: Работа со студентами
 Перейдите во вкладки «Госэкзамен» или «ВКР» в меню слева.
+• Во вкладке «Госэкзамен» имеется возможность выбора типа экзамена (ФИЭБ или Экзамен) в зависимости от того что нужно пользователю.
 • Нажмите кнопку «➕ Добавить студента».
 • В поле «ФИО» выберите студента из списка (если вы загрузили Excel), если не загружали также предусмотрена возможность ручного добавления.
 • Для ВКР: Тема дипломной работы подставится автоматически при выборе студента из выпадающего списка.
 • Заполните остальные поля (оценки, вопросы, характеристики) и нажмите «Сохранить».
 Управление списком:
 • Редактирование: дважды кликните левой кнопкой мыши по строке студента в таблице.
-• Удаление: нажмите красную иконку корзины 🗑️ справа от строки.
+• Удаление: нажмите красную иконку корзины 🗑️ справа от строки студента.
 • Очистка: кнопка «🗑️ Очистить список» удаляет всех студентов из текущей вкладки.
 
 🔹 ШАГ 5: Генерация документов
@@ -838,7 +847,9 @@ class GECAssistantApp(ctk.CTk):
 💡 ПОЛЕЗНЫЕ СОВЕТЫ:
 Подсказки: Наведите курсор мыши на значок «ℹ️» рядом с любым полем ввода, чтобы прочитать требования к формату (например, как писать ФИО).
 Копирование и вставка: Если горячие клавиши не работают, нажмите правую кнопку мыши в любом текстовом поле — откроется меню с опциями «Копировать» и «Вставить».
-Автозаполнение характеристик: При выборе оценки (например, «Отлично») в выпадающем списке, текст характеристики ответов студента заполнится автоматически.
+Автозаполнение характеристик во вкладках «Госэкзамен» и «ВКР»: При выборе оценки (например, «Отлично») в выпадающем списке, там где поле «Характеристика ответов» справа, текст на студента заполнится автоматически (ориентируйтесь по оценке студента, какая оценка, такой и вариант должен быть выбран в характеристике ответов).
+Во вкладке «Общие данные» поля для 4 члена комиссии не являются обязательными к заполнению (например, если 4 член комиссии отсутствует), то можно пропустить это поле.
+Во вкладке «ВКР» при создании студента в окне ввода есть три текстовых поля: «При консультации», «Чертежи», «Иллюстрационный материал» они автоматически заполнены «-» прочерком, редактировать их можно только если есть необходимость в этом, иначе игнорируем эти поля.
 Последовательность: Для избежания ошибок рекомендуется заполнять данные строго по порядку: Комиссия → Общие данные → Студенты → Генерация.
 """
         
@@ -860,13 +871,13 @@ class GECAssistantApp(ctk.CTk):
         sidebar.pack_propagate(False)
         logo_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
         logo_frame.pack(pady=25, padx=15)
-        ctk.CTkLabel(logo_frame, text="🎓 Secretary assistant", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=15, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack()
+        ctk.CTkLabel(logo_frame, text="🎓 Secretary Assistant", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=15, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY).pack()
         ctk.CTkLabel(logo_frame, text="Цифровой помощник", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=11), text_color=DesignConfig.TEXT_SECONDARY).pack(pady=(4, 0))
         nav_buttons = [
             ("📋 Общие данные", "commission", self._show_commission),
             ("📖 Госэкзамен", "gos", self._show_gos),
             ("📄 ВКР", "vkr", self._show_vkr),
-            ("✨  Генерация", "generate", self._show_generate),
+            ("✨ Генерация", "generate", self._show_generate),
             ("❓ Руководство", "help", self._show_help)
         ]
         for text, section_id, command in nav_buttons:
@@ -874,13 +885,6 @@ class GECAssistantApp(ctk.CTk):
             btn.pack(fill="x", padx=12, pady=4)
             self.nav_buttons[section_id] = btn
         self._update_nav_buttons()
-        version_label = ctk.CTkLabel(
-            sidebar, 
-            text=f"version {APP_VERSION}", 
-            font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=14),
-            text_color=DesignConfig.TEXT_MUTED
-        )
-        version_label.pack(side="bottom", pady=20)
         self.content_frame = ctk.CTkFrame(main_container, corner_radius=DesignConfig.CORNER_RADIUS, fg_color=DesignConfig.CARD_BG)
         self.content_frame.pack(side="right", fill="both", expand=True)
         self.section_title = ctk.CTkLabel(self.content_frame, text="", font=ctk.CTkFont(family=DesignConfig.FONT_FAMILY, size=DesignConfig.FONT_TITLE, weight="bold"), text_color=DesignConfig.TEXT_PRIMARY)
@@ -920,6 +924,10 @@ class GECAssistantApp(ctk.CTk):
             self.section_content._scrollbar.grid()
 
     def _show_gos(self):
+        try:
+            self.section_content._parent_canvas.yview_moveto(0)
+        except:
+            pass
         self.current_section = "gos"
         self.section_title.configure(text="📖 Государственный экзамен")
         self._create_gos_content()
@@ -929,6 +937,10 @@ class GECAssistantApp(ctk.CTk):
             self.section_content._scrollbar.grid()
 
     def _show_generate(self):
+        try:
+            self.section_content._parent_canvas.yview_moveto(0)
+        except:
+            pass
         self.current_section = "generate"
         self.section_title.configure(text="✨ Генерация документов")
         self._create_generate_content()
